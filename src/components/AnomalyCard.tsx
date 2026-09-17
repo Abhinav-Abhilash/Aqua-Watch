@@ -8,7 +8,7 @@ interface AnomalyCardProps {
 }
 
 export default function AnomalyCard({ onInspect }: AnomalyCardProps) {
-  const { leakStatus, selectedHousehold } = useAqua();
+  const { leakStatus, selectedHousehold, resetHouseholdBaseline } = useAqua();
   const [isDismissed, setIsDismissed] = useState(false);
   const [isIsolated, setIsIsolated] = useState(false);
 
@@ -20,19 +20,24 @@ export default function AnomalyCard({ onInspect }: AnomalyCardProps) {
   const excess = Math.max(0, Math.round(leakStatus.latestReadingLiters - leakStatus.rollingAvgLiters));
   const peerDivergence = leakStatus.peerDivergence;
 
+  const handleConfirmExpected = () => {
+    resetHouseholdBaseline(selectedHousehold.id);
+    setIsDismissed(true);
+  };
+
   return (
     <div
-      className="bg-white rounded-2xl shadow-xs p-5 sm:p-6 relative overflow-hidden flex flex-col justify-between border border-slate-200/80 transition-all animate-in fade-in duration-300"
-      style={{ boxShadow: 'inset 5px 0 0 #ba1a1a' }}
+      className="bg-white rounded-lg shadow-none p-5 sm:p-6 relative overflow-hidden flex flex-col justify-between border border-slate-200 transition-all animate-in fade-in duration-200"
+      style={{ boxShadow: 'inset 4px 0 0 #ba1a1a' }}
     >
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <span className="px-2.5 py-1 rounded-full bg-red-100 text-error text-xs tracking-wider font-bold uppercase flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-error animate-ping" />
-            FLAGGED ANOMALY
+          <span className="px-2.5 py-0.5 rounded bg-red-100 text-red-700 text-xs font-medium flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping" />
+            Flagged anomaly
           </span>
-          <span className="text-xs text-slate-500">Telemetry Event #9928</span>
+          <span className="text-xs text-slate-500">Telemetry event #9928</span>
         </div>
         <span className="text-xs text-slate-400">Updated just now</span>
       </div>
@@ -73,10 +78,10 @@ export default function AnomalyCard({ onInspect }: AnomalyCardProps) {
         <div className="flex items-center gap-2.5">
           <span
             id="peer-divergence-badge"
-            className={`px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1 shadow-2xs ${
+            className={`px-2.5 py-0.5 rounded text-xs font-medium inline-flex items-center gap-1 ${
               peerDivergence.isPeerFlat
-                ? 'bg-primary text-white'
-                : 'bg-amber-500 text-white'
+                ? 'bg-[#2F6FED] text-white'
+                : 'bg-amber-600 text-white'
             }`}
           >
             <span className="material-symbols-outlined text-[15px]">
@@ -90,16 +95,16 @@ export default function AnomalyCard({ onInspect }: AnomalyCardProps) {
         </div>
 
         <div className="text-right shrink-0">
-          <span className="text-[10px] text-slate-500 block uppercase tracking-wider font-semibold">Peer Group Status</span>
-          <span className={`text-xs font-bold ${peerDivergence.isPeerFlat ? 'text-primary' : 'text-amber-700'}`}>
-            {peerDivergence.isPeerFlat ? 'Local Peers Flat (±0%)' : `Peers Co-elevated (+${peerDivergence.peerTrendPercent}%)`}
+          <span className="text-[10px] text-slate-500 block font-normal">Peer group status</span>
+          <span className={`text-xs font-semibold ${peerDivergence.isPeerFlat ? 'text-[#2F6FED]' : 'text-amber-700'}`}>
+            {peerDivergence.isPeerFlat ? 'Local peers flat (±0%)' : `Peers co-elevated (+${peerDivergence.peerTrendPercent}%)`}
           </span>
         </div>
       </div>
 
       {/* Actions */}
       <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100 mt-2">
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 flex-wrap">
           <button
             onClick={onInspect}
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-primary-container text-white hover:bg-primary font-semibold text-xs shadow-xs transition-colors"
@@ -112,6 +117,13 @@ export default function AnomalyCard({ onInspect }: AnomalyCardProps) {
             className="px-3 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition-colors"
           >
             Dismiss Alert
+          </button>
+          <button
+            id="btn-confirm-baseline-anomaly"
+            onClick={handleConfirmExpected}
+            className="text-xs text-slate-500 hover:text-slate-800 underline decoration-slate-300 underline-offset-2 ml-1 cursor-pointer transition-colors"
+          >
+            This is expected now
           </button>
         </div>
 

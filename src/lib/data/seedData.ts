@@ -1,4 +1,4 @@
-import { Household, MeterReading } from '@/types';
+import type { Household, MeterReading } from '../../types/index.ts';
 
 export const INITIAL_HOUSEHOLDS: Household[] = [
   {
@@ -6,6 +6,7 @@ export const INITIAL_HOUSEHOLDS: Household[] = [
     name: 'The Henderson Residence (Demo Home)',
     occupants: 4,
     locality: 'Pine Valley',
+    expectedOvernightLiters: 0,
     notes: 'Primary demo home — normal baseline, ready for live pitch demo'
   },
   {
@@ -13,20 +14,23 @@ export const INITIAL_HOUSEHOLDS: Household[] = [
     name: 'The Miller Family',
     occupants: 4,
     locality: 'Pine Valley',
-    notes: 'Active leak pre-seeded (running toilet flapper valve: +140 L/night)'
+    expectedOvernightLiters: 0,
+    notes: 'Active leak pre-seeded: running flapper valve (+145 L/night across all 5 hourly buckets — continuous trickle)'
   },
   {
     id: 'h-morales',
     name: 'The Morales Home',
     occupants: 3,
     locality: 'Pine Valley',
-    notes: 'Peer group household in Pine Valley'
+    expectedOvernightLiters: 0,
+    notes: 'Overnight guest visiting: burst usage (+42 L at 2am, rest 1 L) for 3 consecutive nights'
   },
   {
     id: 'h-chen',
     name: 'Oakridge Villa (Chen Family)',
     occupants: 3,
     locality: 'Oakridge Suburb',
+    expectedOvernightLiters: 0,
     notes: 'Consistent low-flow fixtures installed'
   },
   {
@@ -34,6 +38,7 @@ export const INITIAL_HOUSEHOLDS: Household[] = [
     name: 'Greenwood Cottage (Sarah Jenkins)',
     occupants: 1,
     locality: 'Oakridge Suburb',
+    expectedOvernightLiters: 0,
     notes: 'Single occupant eco-conscious home'
   },
   {
@@ -41,13 +46,15 @@ export const INITIAL_HOUSEHOLDS: Household[] = [
     name: 'Harbor Crest (Patel Family)',
     occupants: 5,
     locality: 'Harborview District',
-    notes: 'Large family home with high garden usage'
+    expectedOvernightLiters: 0,
+    notes: 'Scheduled appliance test home: overnight sprinkler running 35 L/night (flags when expectedOvernightLiters is 0; clears when set to 35)'
   },
   {
     id: 'h-taylor',
     name: 'The Taylor Loft',
     occupants: 2,
     locality: 'Harborview District',
+    expectedOvernightLiters: 0,
     notes: 'Downtown duplex'
   }
 ];
@@ -63,7 +70,12 @@ export const AVAILABLE_LOCALITIES = [
  * Splits every day into:
  * - daytimeLiters (~6am-11pm): weekday/weekend natural variance (+15-20% weekend)
  * - overnightLiters (~11pm-6am): flat, near-zero baseline (~4-8 L/night for normal homes)
- * Miller has elevated overnightLiters for the last 4 days (+140 L/night).
+ * - overnightBuckets: [1am, 2am, 3am, 4am, 5am] hourly flow breakdown
+ *
+ * Scenarios:
+ * 1. Miller (h-miller): continuous leak (+145 L) elevated across 4-5 buckets for last 4 days -> LEAK
+ * 2. Morales (h-morales): burst pattern (elevated in only 2am bucket, rest ~1L) for last 3 days -> NOT leak, informational guest note
+ * 3. Patel (h-patel): scheduled appliance (35 L continuous sprinkler) -> flags if expectedOvernightLiters=0, clears when set to 35
  */
 export function generateSeedReadings(): MeterReading[] {
   const readings: MeterReading[] = [];
@@ -95,18 +107,45 @@ export function generateSeedReadings(): MeterReading[] {
       const hash = (household.id.charCodeAt(2) * 31 + dayOffset * 17) % 100;
       const noise = 1 + ((hash - 50) / 50) * 0.06;
 
-      // Flat, near-zero overnight baseline: 4-8 L/night
-      let overnightLiters = 4 + (hash % 5);
-
       // Normal daytime usage
       let daytimeLiters = Math.round(baseDaily * weekendMultiplier * noise);
 
-      // Pre-seed Miller's active leak: elevated overnight flow for the last 4 days
-      // (+145 L overnight continuous flow from leaking toilet valve)
+      // Default baseline overnight hourly buckets (1am, 2am, 3am, 4am, 5am) ~1-2 L/hr
+      let b1 = 1 + (hash % 2);
+      let b2 = 1 + ((hash + 1) % 2);
+      let b3 = 1 + ((hash + 2) % 2);
+      let b4 = 1 + ((hash + 3) % 2);
+      let b5 = 1 + ((hash + 4) % 2);
+
+      // 1. Miller's active continuous leak: elevated across all 5 buckets (+28-30 L in each bucket) for last 4 days
       if (household.id === 'h-miller' && dayOffset <= 3) {
-        overnightLiters = Math.round(overnightLiters + 145);
+        b1 += 28;
+        b2 += 30;
+        b3 += 29;
+        b4 += 28;
+        b5 += 30;
       }
 
+      // 2. Morales's overnight guest: burst pattern (only 2am bucket elevated +42 L, rest near-zero 1 L) for last 3 days
+      if (household.id === 'h-morales' && dayOffset <= 2) {
+        b1 = 1;
+        b2 = 42; // single burst: guest shower/toilet at 2am
+        b3 = 1;
+        b4 = 1;
+        b5 = 1;
+      }
+
+      // 3. Patel's scheduled appliance: 35 L overnight sprinkler running for last 4 days
+      if (household.id === 'h-patel' && dayOffset <= 3) {
+        b1 += 7;
+        b2 += 7;
+        b3 += 7;
+        b4 += 7;
+        b5 += 7;
+      }
+
+      const overnightBuckets: [number, number, number, number, number] = [b1, b2, b3, b4, b5];
+      const overnightLiters = b1 + b2 + b3 + b4 + b5;
       const liters = daytimeLiters + overnightLiters;
 
       readings.push({
@@ -115,6 +154,7 @@ export function generateSeedReadings(): MeterReading[] {
         date: dateStr,
         daytimeLiters,
         overnightLiters,
+        overnightBuckets,
         liters
       });
     }

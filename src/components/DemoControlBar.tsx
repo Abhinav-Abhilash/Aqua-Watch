@@ -15,17 +15,17 @@ export default function DemoControlBar() {
   } = useAqua();
 
   return (
-    <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-xl p-4 shadow-sm border border-slate-700">
+    <div className="bg-slate-900 text-white rounded-lg p-4 shadow-none border border-slate-700">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         
         {/* Left: Pitch Demo Banner Info */}
         <div className="flex items-start space-x-3">
-          <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+          <div className="w-8 h-8 rounded-md bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center flex-shrink-0 mt-0.5">
             <Sparkles className="w-4 h-4" />
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-amber-400">Live Hackathon Pitch Demo</span>
+              <span className="text-xs font-semibold text-amber-400">Live pitch demo</span>
               {isSimulatedLeakActive ? (
                 <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/30 text-rose-300 border border-rose-500/50">
                   <AlertTriangle className="w-3 h-3 mr-1" />
@@ -56,7 +56,7 @@ export default function DemoControlBar() {
             }`}
           >
             <Zap className={`w-4 h-4 ${isSimulatedLeakActive ? 'fill-current' : ''}`} />
-            <span>{isSimulatedLeakActive ? 'Re-Inject Leak Spikes' : '⚡ Simulate Leak'}</span>
+            <span>{isSimulatedLeakActive ? 'Re-inject leak spikes' : 'Simulate leak'}</span>
           </button>
 
           <button

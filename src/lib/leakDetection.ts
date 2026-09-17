@@ -1,4 +1,4 @@
-import { MeterReading, DayAnalysis, LeakStatus, Household, PeerDivergenceInfo } from '@/types';
+import type { MeterReading, DayAnalysis, LeakStatus, Household, PeerDivergenceInfo } from '../types/index.ts';
 
 export function calculateStdDev(values: number[], mean: number): number {
   if (values.length <= 1) return 0;
@@ -19,13 +19,22 @@ export function calculateStdDev(values: number[], mean: number): number {
 export function analyzeReadings(
   readings: MeterReading[],
   allReadings: MeterReading[],
-  currentHousehold: Household,
-  allHouseholds: Household[],
+  currentHousehold?: Household,
+  allHouseholds: Household[] = [],
   windowSize: number = 14
 ): {
   timeline: DayAnalysis[];
   status: LeakStatus;
 } {
+  const safeHousehold = currentHousehold || {
+    id: 'h-henderson',
+    name: 'The Henderson Residence (Demo Home)',
+    occupants: 4,
+    locality: 'Pine Valley',
+    expectedOvernightLiters: 0
+  };
+  const declaredOvernight = Math.max(0, safeHousehold.expectedOvernightLiters || 0);
+
   const defaultPeerDivergence: PeerDivergenceInfo = {
     confidence: 'HIGH',
     confidencePercent: 99,
@@ -47,6 +56,12 @@ export function analyzeReadings(
         latestReadingLiters: 0,
         latestDaytimeLiters: 0,
         latestOvernightLiters: 0,
+        effectiveOvernightLiters: 0,
+        expectedOvernightLiters: declaredOvernight,
+        hasUnusualOvernightActivity: false,
+        baselineResetDate: safeHousehold.baselineResetDate,
+        baselineResetNote: safeHousehold.baselineResetNote,
+        latestBuckets: [0, 0, 0, 0, 0],
         rollingAvgLiters: 0,
         rollingStdDev: 0,
         rollingOvernightAvgLiters: 0,
@@ -65,13 +80,13 @@ export function analyzeReadings(
 
   // Determine peer households (same locality, occupants ±1)
   const peerHouseholds = allHouseholds.filter(h => 
-    h.id !== currentHousehold.id &&
-    h.locality === currentHousehold.locality &&
-    Math.abs(h.occupants - currentHousehold.occupants) <= 1
+    h.id !== safeHousehold.id &&
+    h.locality === safeHousehold.locality &&
+    Math.abs(h.occupants - safeHousehold.occupants) <= 1
   );
   const effectivePeers = peerHouseholds.length > 0
     ? peerHouseholds
-    : allHouseholds.filter(h => h.id !== currentHousehold.id);
+    : allHouseholds.filter(h => h.id !== safeHousehold.id);
 
   const peerReadingsByDate: Record<string, number[]> = {};
   allReadings.forEach(r => {
@@ -87,76 +102,192 @@ export function analyzeReadings(
   let daytimeStreak = 0;
   let daytimeStreakStartDate: string | undefined = undefined;
   let generalStreak = 0;
+  let burstStreak = 0;
 
   for (let i = 0; i < sorted.length; i++) {
     const current = sorted[i];
 
-    // Rolling window of past 14 days
-    const windowStart = Math.max(0, i - windowSize);
-    const windowItems = sorted.slice(windowStart, i);
-    const unflaggedItems = timeline.slice(windowStart, i).filter(t => !t.is_anomalous);
+    // Effective overnight flow after deducting declared scheduled recurring appliances
+    const effectiveOvernight = Math.max(0, current.overnightLiters - declaredOvernight);
 
-    const baseItems = unflaggedItems.length >= 3 ? unflaggedItems : windowItems;
+    // 5 hourly buckets: 1am, 2am, 3am, 4am, 5am
+    const rawBuckets: [number, number, number, number, number] = current.overnightBuckets || [
+      Math.round(current.overnightLiters * 0.2),
+      Math.round(current.overnightLiters * 0.2),
+      Math.round(current.overnightLiters * 0.2),
+      Math.round(current.overnightLiters * 0.2),
+      Math.round(current.overnightLiters * 0.2)
+    ];
 
-    // Total baseline
+    const perBucketDeclared = declaredOvernight / 5;
+    const effectiveBuckets: [number, number, number, number, number] = [
+      Math.max(0, Math.round((rawBuckets[0] - perBucketDeclared) * 10) / 10),
+      Math.max(0, Math.round((rawBuckets[1] - perBucketDeclared) * 10) / 10),
+      Math.max(0, Math.round((rawBuckets[2] - perBucketDeclared) * 10) / 10),
+      Math.max(0, Math.round((rawBuckets[3] - perBucketDeclared) * 10) / 10),
+      Math.max(0, Math.round((rawBuckets[4] - perBucketDeclared) * 10) / 10)
+    ];
+
+    // Determine baseline items:
+    // If household has a confirmed baselineResetDate, for readings on/after that date,
+    // only use readings strictly from on/after baselineResetDate up to index i - 1.
+    const isPostReset = Boolean(
+      safeHousehold.baselineResetDate && current.date >= safeHousehold.baselineResetDate
+    );
+
+    let baseItems: Array<{ liters: number; overnightLiters: number; daytimeLiters: number; is_anomalous?: boolean }>;
+    let oBaseItems: Array<{ overnightLiters: number }>;
+    let isInitialResetStabilizing = false;
+
+    if (isPostReset) {
+      const postResetReadings = sorted.slice(0, i).filter(r => r.date >= safeHousehold.baselineResetDate!);
+      const postResetWindow = postResetReadings.slice(-windowSize);
+      const unflaggedPostReset = timeline.slice(0, i).filter(t => t.date >= safeHousehold.baselineResetDate! && !t.is_anomalous).slice(-windowSize);
+
+      if (postResetWindow.length === 0) {
+        // Day 0 of lifestyle change: reset all active streaks and initialize baseline around this reading
+        isInitialResetStabilizing = true;
+        baseItems = [];
+        oBaseItems = [];
+      } else if (postResetWindow.length < 3) {
+        // First 1-2 days after reset: learn the new normal from available post-reset items + current
+        isInitialResetStabilizing = true;
+        const available = [...postResetWindow, current];
+        baseItems = available.map(r => ({
+          liters: r.liters,
+          overnightLiters: Math.max(0, r.overnightLiters - declaredOvernight),
+          daytimeLiters: r.daytimeLiters
+        }));
+        oBaseItems = baseItems;
+      } else {
+        const candidateItems = unflaggedPostReset.length >= 3 ? unflaggedPostReset : postResetWindow;
+        baseItems = candidateItems.map(c => ({
+          liters: c.liters,
+          overnightLiters: Math.max(0, c.overnightLiters - declaredOvernight),
+          daytimeLiters: c.daytimeLiters
+        }));
+        const cleanOvernight = unflaggedPostReset.filter(t => !t.is_overnight_anomalous && !t.is_overnight_burst);
+        oBaseItems = (cleanOvernight.length >= 3 ? cleanOvernight : candidateItems).map(c => ({
+          overnightLiters: Math.max(0, c.overnightLiters - declaredOvernight)
+        }));
+      }
+    } else {
+      const windowStart = Math.max(0, i - windowSize);
+      const windowItems = sorted.slice(windowStart, i);
+      const unflaggedItems = timeline.slice(windowStart, i).filter(t => !t.is_anomalous);
+      const candidateItems = unflaggedItems.length >= 3 ? unflaggedItems : windowItems;
+      baseItems = candidateItems.map(c => ({
+        liters: c.liters,
+        overnightLiters: Math.max(0, c.overnightLiters - declaredOvernight),
+        daytimeLiters: c.daytimeLiters
+      }));
+      // Filter out overnight bursts or leak days from overnight baseline to prevent silent inflation
+      const cleanOvernight = unflaggedItems.filter(t => !t.is_overnight_anomalous && !t.is_overnight_burst);
+      oBaseItems = (cleanOvernight.length >= 3 ? cleanOvernight : candidateItems).map(c => ({
+        overnightLiters: Math.max(0, c.overnightLiters - declaredOvernight)
+      }));
+    }
+
+    // Baseline stats calculations
     let rolling_avg = current.liters;
     let rolling_stddev = 25;
-    if (baseItems.length >= 3) {
-      const tVals = baseItems.map(b => b.liters);
-      rolling_avg = Math.round((tVals.reduce((a, b) => a + b, 0) / tVals.length) * 10) / 10;
-      rolling_stddev = Math.round(calculateStdDev(tVals, rolling_avg) * 10) / 10;
-    }
-    const minStdDev = Math.max(rolling_stddev, 15);
-    const totalThreshold = Math.round((rolling_avg + (2.5 * minStdDev)) * 10) / 10;
-    const is_total_anomalous = baseItems.length >= 3 && current.liters > totalThreshold;
-
-    // Overnight baseline
-    let rolling_overnight_avg = current.overnightLiters;
+    let rolling_overnight_avg = effectiveOvernight;
     let rolling_overnight_stddev = 2;
-    if (baseItems.length >= 3) {
-      const oVals = baseItems.map(b => b.overnightLiters);
-      rolling_overnight_avg = Math.round((oVals.reduce((a, b) => a + b, 0) / oVals.length) * 10) / 10;
-      rolling_overnight_stddev = Math.round(calculateStdDev(oVals, rolling_overnight_avg) * 10) / 10;
-    }
-    const minOvernightStdDev = Math.max(rolling_overnight_stddev, 3);
-    const overnightThreshold = Math.round((rolling_overnight_avg + (2.5 * minOvernightStdDev)) * 10) / 10;
-    const is_overnight_anomalous = baseItems.length >= 3 && current.overnightLiters > overnightThreshold;
-
-    // Daytime baseline
     let rolling_daytime_avg = current.daytimeLiters;
     let rolling_daytime_stddev = 15;
-    if (baseItems.length >= 3) {
-      const dVals = baseItems.map(b => b.daytimeLiters);
+
+    if (baseItems.length >= 3 || isInitialResetStabilizing) {
+      const sample = baseItems.length > 0 ? baseItems : [{ liters: current.liters, overnightLiters: effectiveOvernight, daytimeLiters: current.daytimeLiters }];
+      const tVals = sample.map(b => b.liters);
+      rolling_avg = Math.round((tVals.reduce((a, b) => a + b, 0) / tVals.length) * 10) / 10;
+      rolling_stddev = Math.round(calculateStdDev(tVals, rolling_avg) * 10) / 10;
+
+      const oSample = oBaseItems && oBaseItems.length > 0 ? oBaseItems : sample;
+      const oVals = oSample.map(b => b.overnightLiters);
+      rolling_overnight_avg = Math.round((oVals.reduce((a, b) => a + b, 0) / oVals.length) * 10) / 10;
+      rolling_overnight_stddev = Math.round(calculateStdDev(oVals, rolling_overnight_avg) * 10) / 10;
+
+      const dVals = sample.map(b => b.daytimeLiters);
       rolling_daytime_avg = Math.round((dVals.reduce((a, b) => a + b, 0) / dVals.length) * 10) / 10;
       rolling_daytime_stddev = Math.round(calculateStdDev(dVals, rolling_daytime_avg) * 10) / 10;
     }
+
+    const minStdDev = Math.max(rolling_stddev, 15);
+    const totalThreshold = Math.round((rolling_avg + (2.5 * minStdDev)) * 10) / 10;
+    const is_total_anomalous = !isInitialResetStabilizing && baseItems.length >= 3 && current.liters > totalThreshold;
+
+    const minOvernightStdDev = Math.max(rolling_overnight_stddev, 3);
+    const overnightThreshold = Math.round((rolling_overnight_avg + (2.5 * minOvernightStdDev)) * 10) / 10;
+    const is_overnight_volume_elevated = !isInitialResetStabilizing && baseItems.length >= 3 && effectiveOvernight > overnightThreshold;
+
     const minDaytimeStdDev = Math.max(rolling_daytime_stddev, rolling_daytime_avg * 0.08, 15);
     const daytimeThreshold = Math.round((rolling_daytime_avg + (2.5 * minDaytimeStdDev)) * 10) / 10;
-    const is_daytime_anomalous = baseItems.length >= 3 && current.daytimeLiters > daytimeThreshold;
+    const is_daytime_anomalous = !isInitialResetStabilizing && baseItems.length >= 3 && current.daytimeLiters > daytimeThreshold;
 
-    const is_any_elevated = is_overnight_anomalous || is_daytime_anomalous || is_total_anomalous;
+    // 5 Hourly Buckets Flow Shape Analysis
+    // Determine whether overnight elevation is Continuous Trickle (Leak) vs Burst (Guest / Late Night)
+    let is_overnight_anomalous = false;
+    let is_overnight_burst = false;
+    let flow_shape: 'CONTINUOUS' | 'BURST' | 'NORMAL' = 'NORMAL';
+    let elevatedBucketCount = 0;
+
+    if (is_overnight_volume_elevated) {
+      const hourlyBaseline = rolling_overnight_avg / 5;
+      const bucketElevationThreshold = Math.max(4, Math.round(hourlyBaseline + 3));
+      elevatedBucketCount = effectiveBuckets.filter(b => b >= bucketElevationThreshold).length;
+
+      if (elevatedBucketCount >= 4) {
+        // Continuous trickle across MOST of the 5 buckets (4 or 5 out of 5 elevated) -> flag LEAK candidate
+        flow_shape = 'CONTINUOUS';
+        is_overnight_anomalous = true;
+      } else if (elevatedBucketCount >= 1 && elevatedBucketCount <= 2) {
+        // Burst pattern: 1-2 buckets elevated and the rest near-zero -> do NOT flag as leak
+        flow_shape = 'BURST';
+        is_overnight_burst = true;
+        is_overnight_anomalous = false;
+      } else {
+        flow_shape = 'NORMAL';
+        is_overnight_anomalous = false;
+      }
+    }
 
     // Streaks
-    if (is_overnight_anomalous) {
-      overnightStreak += 1;
-      if (!overnightStreakStartDate) overnightStreakStartDate = current.date;
-    } else {
+    if (isInitialResetStabilizing) {
       overnightStreak = 0;
       overnightStreakStartDate = undefined;
-    }
-
-    if (is_daytime_anomalous || is_total_anomalous) {
-      daytimeStreak += 1;
-      if (!daytimeStreakStartDate) daytimeStreakStartDate = current.date;
-    } else {
       daytimeStreak = 0;
       daytimeStreakStartDate = undefined;
-    }
-
-    if (is_any_elevated) {
-      generalStreak += 1;
-    } else {
       generalStreak = 0;
+      burstStreak = 0;
+    } else {
+      if (is_overnight_burst) {
+        burstStreak += 1;
+      } else {
+        burstStreak = 0;
+      }
+
+      if (is_overnight_anomalous) {
+        overnightStreak += 1;
+        if (!overnightStreakStartDate) overnightStreakStartDate = current.date;
+      } else {
+        overnightStreak = 0;
+        overnightStreakStartDate = undefined;
+      }
+
+      if (is_daytime_anomalous) {
+        daytimeStreak += 1;
+        if (!daytimeStreakStartDate) daytimeStreakStartDate = current.date;
+      } else {
+        daytimeStreak = 0;
+        daytimeStreakStartDate = undefined;
+      }
+
+      const is_any_elevated = is_overnight_anomalous || is_daytime_anomalous || (is_total_anomalous && !is_overnight_burst);
+      if (is_any_elevated) {
+        generalStreak += 1;
+      } else {
+        generalStreak = 0;
+      }
     }
 
     // Flagged only when elevated reading persists for 2+ consecutive readings
@@ -167,12 +298,14 @@ export function analyzeReadings(
     const peerVals = peerReadingsByDate[current.date] || [];
     const peer_avg = peerVals.length > 0
       ? Math.round(peerVals.reduce((a, b) => a + b, 0) / peerVals.length)
-      : Math.round(currentHousehold.occupants * 130);
+      : Math.round(safeHousehold.occupants * 130);
 
     timeline.push({
       date: current.date,
       daytimeLiters: current.daytimeLiters,
       overnightLiters: current.overnightLiters,
+      effectiveOvernightLiters: effectiveOvernight,
+      overnightBuckets: rawBuckets,
       liters: current.liters,
       rolling_daytime_avg,
       rolling_overnight_avg,
@@ -181,6 +314,9 @@ export function analyzeReadings(
       rolling_overnight_stddev: minOvernightStdDev,
       is_daytime_anomalous,
       is_overnight_anomalous,
+      is_overnight_burst,
+      elevated_bucket_count: elevatedBucketCount,
+      flow_shape,
       is_anomalous,
       is_elevated_unflagged,
       streak: generalStreak,
@@ -191,11 +327,17 @@ export function analyzeReadings(
 
   const latest = timeline[timeline.length - 1];
 
-  // LEAK requires 2+ consecutive nights of elevated overnightLiters
+  // LEAK requires 2+ consecutive nights of elevated continuous overnight flow
   const hasLeak = overnightStreak >= 2;
 
   // HIGH USAGE requires 2+ consecutive days of elevated daytime/total while overnight is normal
   const hasHighUsage = !hasLeak && (daytimeStreak >= 2 || generalStreak >= 2);
+
+  // Informational burst notification (2+ nights of burst overnight activity)
+  const hasUnusualOvernightActivity = burstStreak >= 2;
+  const unusualActivityNote = hasUnusualOvernightActivity
+    ? "unusual overnight activity — may be a guest or late-night use"
+    : undefined;
 
   let severity: 'NORMAL' | 'HIGH_USAGE' | 'LEAK_DETECTED' = 'NORMAL';
   let title = "Everything's normal";
@@ -211,13 +353,14 @@ export function analyzeReadings(
     consecutiveDays = overnightStreak;
     anomalyStartDate = overnightStreakStartDate;
     title = "Possible leak — water is running when no one's using it";
-    explanation = `Overnight minimum flow has stayed elevated (${latest.overnightLiters} L vs normal ~${Math.round(latest.rolling_overnight_avg)} L) for ${overnightStreak} consecutive nights.`;
+    const declaredNote = declaredOvernight > 0 ? ` (after ${declaredOvernight} L scheduled appliance allowance)` : '';
+    explanation = `Overnight flow has stayed elevated across continuous hourly buckets (${latest.effectiveOvernightLiters ?? latest.overnightLiters} L effective vs normal ~${Math.round(latest.rolling_overnight_avg)} L)${declaredNote} for ${overnightStreak} consecutive nights.`;
   } else if (hasHighUsage) {
     severity = 'HIGH_USAGE';
     consecutiveDays = daytimeStreak || generalStreak;
     anomalyStartDate = daytimeStreakStartDate;
     title = 'Usage is higher than usual';
-    explanation = `Daily usage is elevated above your 14-day average for ${consecutiveDays} consecutive days, but overnight flow remains flat. Likely domestic activity, not a plumbing fault.`;
+    explanation = `Daily usage is elevated above your 14-day average for ${consecutiveDays} consecutive days, but overnight flow remains within baseline. Likely domestic activity, not a plumbing fault.`;
   }
 
   const peerDiffPercent = latest.peer_avg > 0
@@ -225,7 +368,6 @@ export function analyzeReadings(
     : 0;
 
   // Compute Peer Divergence Confidence Boost
-  // Calculate peer baseline trend over the 14-day window
   const peerBaselineVals: number[] = [];
   for (let j = Math.max(0, sorted.length - 15); j < sorted.length - 1; j++) {
     const pVals = peerReadingsByDate[sorted[j].date] || [];
@@ -248,9 +390,7 @@ export function analyzeReadings(
   let peerDivergence: PeerDivergenceInfo;
 
   if (severity !== 'NORMAL' || hhDiffPercent > 15) {
-    // Household usage rose
     if (peerTrendPercent <= 5) {
-      // Peers stayed flat while household rose -> HIGH confidence isolated fault
       peerDivergence = {
         confidence: 'HIGH',
         confidencePercent: 98,
@@ -261,7 +401,6 @@ export function analyzeReadings(
         peerTrendPercent
       };
     } else {
-      // Both rose together -> MODERATE confidence (possible collective weather/seasonal draw)
       peerDivergence = {
         confidence: 'MODERATE',
         confidencePercent: 64,
@@ -287,6 +426,13 @@ export function analyzeReadings(
       latestReadingLiters: latest.liters,
       latestDaytimeLiters: latest.daytimeLiters,
       latestOvernightLiters: latest.overnightLiters,
+      effectiveOvernightLiters: latest.effectiveOvernightLiters ?? Math.max(0, latest.overnightLiters - declaredOvernight),
+      expectedOvernightLiters: declaredOvernight,
+      hasUnusualOvernightActivity,
+      unusualActivityNote,
+      baselineResetDate: safeHousehold.baselineResetDate,
+      baselineResetNote: safeHousehold.baselineResetNote,
+      latestBuckets: latest.overnightBuckets,
       rollingAvgLiters: latest.rolling_avg,
       rollingStdDev: latest.rolling_stddev,
       rollingOvernightAvgLiters: latest.rolling_overnight_avg,

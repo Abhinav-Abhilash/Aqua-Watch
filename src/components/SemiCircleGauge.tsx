@@ -33,16 +33,16 @@ export default function SemiCircleGauge() {
 
       {/* Header */}
       <div>
-        <div className="flex items-center justify-between pb-1">
-          <h2 className="font-bold text-base text-slate-900 tracking-tight">
-            Today&apos;s Consumption vs Baseline
+        <div className="flex items-center justify-between pb-0.5">
+          <h2 className="font-bold text-sm sm:text-base text-slate-900 tracking-tight">
+            Today&apos;s Consumption vs Usual Amount
           </h2>
           <span className="text-xs font-semibold text-primary">
             {selectedHousehold.locality}
           </span>
         </div>
         <p className="text-xs text-slate-500">
-          Calculated against 14-day rolling baseline ({baselineLiters} L)
+          Calculated against your usual daily amount ({baselineLiters} L)
         </p>
       </div>
 
@@ -123,7 +123,7 @@ export default function SemiCircleGauge() {
               fontSize="8.5"
               fontWeight="600"
             >
-              of baseline
+              of usual
             </text>
           </svg>
         </div>
@@ -133,7 +133,7 @@ export default function SemiCircleGauge() {
           <span className="font-semibold">0 L</span>
           <span className="flex items-center gap-1 font-medium text-slate-600 text-[11px] sm:text-xs">
             <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
-            {baselineLiters} L Baseline
+            {baselineLiters} L Usual
           </span>
           <span className="font-semibold">{maxScale} L Max</span>
         </div>

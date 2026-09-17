@@ -16,6 +16,7 @@ export default function OnboardingPage() {
   const [locality, setLocality] = useState(AVAILABLE_LOCALITIES[0]);
   const [customLocality, setCustomLocality] = useState('');
   const [isCustomLocality, setIsCustomLocality] = useState(false);
+  const [expectedOvernightLiters, setExpectedOvernightLiters] = useState('0');
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLogReadingOpen, setIsLogReadingOpen] = useState(false);
@@ -31,6 +32,7 @@ export default function OnboardingPage() {
       name: name.trim(),
       occupants: Math.max(1, parseInt(occupants, 10) || 1),
       locality: effectiveLocality,
+      expectedOvernightLiters: Math.max(0, parseInt(expectedOvernightLiters, 10) || 0),
       notes: notes.trim() || undefined
     });
 
@@ -69,8 +71,8 @@ export default function OnboardingPage() {
               
               {/* Name */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Property / Household Name
+                <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                  Property or household name
                 </label>
                 <input
                   type="text"
@@ -78,15 +80,15 @@ export default function OnboardingPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. 144 Willow Creek Way (Miller Loft)"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-container/20"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-md text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-[#2F6FED]"
                 />
               </div>
 
               {/* Occupants */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-                    Number of Occupants
+                  <label className="block text-xs font-medium text-slate-700">
+                    Number of occupants
                   </label>
                   <span className="text-xs text-slate-400">
                     Est. ~{parseInt(occupants || '1') * 130} L / day baseline median
@@ -95,7 +97,7 @@ export default function OnboardingPage() {
                 <select
                   value={occupants}
                   onChange={(e) => setOccupants(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-container/20"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-md text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-[#2F6FED]"
                 >
                   {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
                     <option key={num} value={num}>
@@ -107,14 +109,14 @@ export default function OnboardingPage() {
 
               {/* Locality */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Sub-District / Locality
+                <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                  Sub-district or locality
                 </label>
                 <select
                   disabled={isCustomLocality}
                   value={locality}
                   onChange={(e) => setLocality(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-container/20 disabled:opacity-50"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-md text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-[#2F6FED] disabled:opacity-50"
                 >
                   {AVAILABLE_LOCALITIES.map(loc => (
                     <option key={loc} value={loc}>{loc}</option>
@@ -140,23 +142,46 @@ export default function OnboardingPage() {
                     value={customLocality}
                     onChange={(e) => setCustomLocality(e.target.value)}
                     placeholder="Enter custom locality..."
-                    className="mt-2 w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-container/20"
+                    className="mt-2 w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-md text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-[#2F6FED]"
                     required
                   />
                 )}
               </div>
 
+              {/* Scheduled Overnight Appliances */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-medium text-slate-700">
+                    Scheduled overnight usage (liters/night)
+                  </label>
+                  <span className="text-xs text-slate-400">Default: 0 L</span>
+                </div>
+                <input
+                  type="number"
+                  min="0"
+                  max="500"
+                  step="1"
+                  value={expectedOvernightLiters}
+                  onChange={(e) => setExpectedOvernightLiters(e.target.value)}
+                  placeholder="0"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-md text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-[#2F6FED]"
+                />
+                <p className="text-xs text-slate-500 mt-1">
+                  if you have a sprinkler, water softener, or anything that runs automatically overnight, enter roughly how much it uses.
+                </p>
+              </div>
+
               {/* Notes */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Property Notes (Optional)
+                <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                  Property notes (optional)
                 </label>
                 <input
                   type="text"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="e.g. Lawn irrigation sub-meter, low-flow fixtures"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-container/20"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-md text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-[#2F6FED]"
                 />
               </div>
 

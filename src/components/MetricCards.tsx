@@ -22,7 +22,7 @@ export default function MetricCards({ status, household }: MetricCardsProps) {
       {/* Card 1: Today's Consumption */}
       <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-xs">
         <div className="flex items-center justify-between text-slate-500">
-          <span className="text-xs font-semibold uppercase tracking-wider">Latest Reading</span>
+          <span className="text-xs font-medium text-slate-600">Latest reading</span>
           <div className="w-8 h-8 rounded-lg bg-sky-50 flex items-center justify-center text-sky-600">
             <Droplets className="w-4 h-4" />
           </div>
@@ -51,7 +51,7 @@ export default function MetricCards({ status, household }: MetricCardsProps) {
       {/* Card 2: 14-Day Rolling Baseline */}
       <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-xs">
         <div className="flex items-center justify-between text-slate-500">
-          <span className="text-xs font-semibold uppercase tracking-wider">14-Day Baseline (μ)</span>
+          <span className="text-xs font-medium text-slate-600">14-day baseline</span>
           <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-600">
             <Activity className="w-4 h-4" />
           </div>
@@ -70,7 +70,7 @@ export default function MetricCards({ status, household }: MetricCardsProps) {
       {/* Card 3: Peer Group Benchmark */}
       <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-xs">
         <div className="flex items-center justify-between text-slate-500">
-          <span className="text-xs font-semibold uppercase tracking-wider">Peer Group Benchmark</span>
+          <span className="text-xs font-medium text-slate-600">Peer group benchmark</span>
           <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
             <Users className="w-4 h-4" />
           </div>
@@ -97,7 +97,7 @@ export default function MetricCards({ status, household }: MetricCardsProps) {
           : 'bg-emerald-50/60 border-emerald-200'
       }`}>
         <div className="flex items-center justify-between text-slate-500">
-          <span className="text-xs font-semibold uppercase tracking-wider text-slate-700">Health Status</span>
+          <span className="text-xs font-medium text-slate-600">Health status</span>
           <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
             status.severity === 'LEAK_DETECTED'
               ? 'bg-rose-200 text-rose-800'

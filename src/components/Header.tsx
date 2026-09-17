@@ -16,7 +16,7 @@ export default function Header() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-2">
         
         {/* Topmost Folio Strip */}
-        <div className="flex items-center justify-between text-[10px] text-on-surface-variant uppercase tracking-wider pb-1 border-b border-primary/10">
+        <div className="flex items-center justify-between text-[10px] text-on-surface-variant pb-1 border-b border-primary/10">
           <span>sheet fol. 42-B // page 18 of 50</span>
           <span>ledger no. 04-2026 (q3 audit)</span>
           <span className="hidden sm:inline">cycle ref: 2026-w38 / 14-day cycle</span>
@@ -37,13 +37,13 @@ export default function Header() {
             <button
               onClick={() => simulateLeak()}
               id="header-simulate-leak"
-              className={`px-2 py-0.5 border text-[11px] font-bold transition ${
+              className={`px-2 py-0.5 border text-[11px] font-medium transition ${
                 isSimulatedLeakActive
                   ? 'border-secondary bg-secondary text-background hover:bg-secondary/90'
                   : 'border-secondary text-secondary hover:bg-secondary hover:text-background'
               }`}
             >
-              {isSimulatedLeakActive ? '[ ! leak active (re-inject) ! ]' : '[ ⚡ simulate leak ]'}
+              {isSimulatedLeakActive ? '[ leak active (re-inject) ]' : '[ simulate leak ]'}
             </button>
 
             <span className="text-outline-variant">/</span>
@@ -53,7 +53,7 @@ export default function Header() {
               id="header-reset-demo"
               className="text-on-surface-variant hover:text-primary underline text-[11px]"
             >
-              [ ↺ reset demo ]
+              [ reset demo ]
             </button>
 
             <span className="text-outline-variant hidden sm:inline">/</span>

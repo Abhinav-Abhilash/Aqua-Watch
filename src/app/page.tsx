@@ -6,86 +6,113 @@ import TopHeader from '@/components/TopHeader';
 import GlanceBanner from '@/components/GlanceBanner';
 import SemiCircleGauge from '@/components/SemiCircleGauge';
 import HouseFlowIllustration from '@/components/HouseFlowIllustration';
-import AnomalyCard from '@/components/AnomalyCard';
-import ZoneStatusStrip from '@/components/ZoneStatusStrip';
 import StatCardsRow from '@/components/StatCardsRow';
+import TrendsView from '@/components/TrendsView';
 import TelemetryTable from '@/components/TelemetryTable';
 import ManualReadingModal from '@/components/ManualReadingModal';
 
+type DashboardTab = 'overview' | 'trends' | 'history';
+
 export default function DashboardPage() {
   const { selectedHousehold, isLoaded, leakStatus } = useAqua();
+  const [activeTab, setActiveTab] = useState<DashboardTab>('overview');
   const [isReadingModalOpen, setIsReadingModalOpen] = useState(false);
   const [isValveOpen, setIsValveOpen] = useState(true);
 
   if (!isLoaded) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-3">
-        <div className="w-10 h-10 border-4 border-primary-container border-t-transparent rounded-full animate-spin" />
+        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
         <p className="text-sm font-semibold text-slate-500">Loading AquaWatch Telemetry...</p>
       </div>
     );
   }
 
-  const isLeak = leakStatus.severity === 'LEAK_DETECTED';
-
   return (
     <>
-      {/* Top Header */}
+      {/* Fixed Top Header with Household Selector */}
       <TopHeader onOpenLogReading={() => setIsReadingModalOpen(true)} />
 
-      {/* Main Content Area */}
-      <main className="relative pt-18 sm:pt-20 bg-background min-h-screen p-3 sm:p-6 lg:p-8">
-        <div className="flex flex-col w-full gap-5 sm:gap-6 max-w-[1600px] mx-auto">
+      {/* Main Viewport Content */}
+      <main className="relative pt-18 sm:pt-20 bg-background min-h-[calc(100vh-42px)] p-3 sm:p-5 lg:p-6 flex flex-col justify-start">
+        <div className="flex flex-col w-full gap-4 sm:gap-5 max-w-[1600px] mx-auto flex-1">
           
-          {/* Overview Context Bar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex flex-col">
-              <div className="flex items-center gap-1.5 text-slate-500 text-xs font-semibold uppercase tracking-wider">
-                <span>{selectedHousehold.locality} Sub-District</span>
-                <span>/</span>
-                <span className="text-primary font-bold">Live Telemetry Feed</span>
+          {/* Household Context & Sub-navigation Tabs directly under Household Selector */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">
+            <div className="flex items-center gap-3">
+              <div className="flex flex-col">
+                <div className="flex items-center gap-1.5 text-slate-600 text-xs font-medium">
+                  <span>{selectedHousehold.locality}</span>
+                  <span className="text-slate-400">/</span>
+                  <span className="text-[#2F6FED] font-semibold">{selectedHousehold.name}</span>
+                </div>
               </div>
-              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mt-0.5 sm:mt-1">
-                Water Demand &amp; Anomaly Dashboard
-              </h1>
+
+              {/* Subsection Tabs */}
+              <div
+                id="dashboard-tabs"
+                className="flex items-center bg-slate-100 p-1 rounded-md text-xs font-medium text-slate-600 ml-2"
+              >
+                <button
+                  id="tab-overview"
+                  type="button"
+                  onClick={() => setActiveTab('overview')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded transition-all cursor-pointer ${
+                    activeTab === 'overview'
+                      ? 'bg-white text-slate-900 shadow-xs font-semibold'
+                      : 'hover:text-slate-900 hover:bg-slate-200/50'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[16px]">dashboard</span>
+                  <span>Overview</span>
+                </button>
+
+                <button
+                  id="tab-trends"
+                  type="button"
+                  onClick={() => setActiveTab('trends')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded transition-all cursor-pointer ${
+                    activeTab === 'trends'
+                      ? 'bg-white text-slate-900 shadow-xs font-semibold'
+                      : 'hover:text-slate-900 hover:bg-slate-200/50'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[16px]">trending_up</span>
+                  <span>Trends</span>
+                </button>
+
+                <button
+                  id="tab-history"
+                  type="button"
+                  onClick={() => setActiveTab('history')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded transition-all cursor-pointer ${
+                    activeTab === 'history'
+                      ? 'bg-white text-slate-900 shadow-xs font-semibold'
+                      : 'hover:text-slate-900 hover:bg-slate-200/50'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[16px]">history</span>
+                  <span>History</span>
+                </button>
+              </div>
             </div>
 
-            {/* Quick Controls */}
-            <div className="flex items-center gap-2 sm:gap-2.5 self-start sm:self-auto flex-wrap">
-              <div className="flex items-center bg-white shadow-xs border border-slate-200/80 rounded-xl p-1">
-                <button
-                  type="button"
-                  className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-primary-container text-white font-semibold text-xs transition-colors"
-                >
-                  Realtime
-                </button>
-                <button
-                  type="button"
-                  className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-slate-600 hover:text-slate-900 font-semibold text-xs transition-colors"
-                >
-                  Daily
-                </button>
-                <button
-                  type="button"
-                  className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-slate-600 hover:text-slate-900 font-semibold text-xs transition-colors"
-                >
-                  Monthly
-                </button>
-              </div>
-
+            {/* Quick Status Pill / Main Valve toggle */}
+            <div className="flex items-center gap-2 self-start sm:self-auto">
               <button
+                id="btn-main-valve-toggle"
                 type="button"
                 onClick={() => setIsValveOpen(!isValveOpen)}
-                className="flex items-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-xl bg-white border border-slate-200/80 text-slate-900 hover:bg-slate-50 transition-all shadow-xs text-xs font-semibold"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-white border border-slate-200 text-slate-800 hover:bg-slate-50 transition-all shadow-none text-xs font-medium"
               >
-                <span className={`material-symbols-outlined text-[16px] sm:text-[18px] ${
+                <span className={`material-symbols-outlined text-[16px] ${
                   isValveOpen ? 'text-emerald-600' : 'text-error'
                 }`}>
                   {isValveOpen ? 'lock_open' : 'lock'}
                 </span>
                 <span>
-                  Main Valve:{' '}
-                  <strong className={isValveOpen ? 'text-emerald-600 font-bold' : 'text-error font-bold'}>
+                  Valve:{' '}
+                  <strong className={isValveOpen ? 'text-emerald-700 font-semibold' : 'text-error font-semibold'}>
                     {isValveOpen ? 'Open' : 'Shut'}
                   </strong>
                 </span>
@@ -93,56 +120,50 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* 1. Status Face & Glance Banner */}
-          <GlanceBanner />
+          {/* TAB 1: OVERVIEW — Level 1 + Level 2 Only (Zero vertical scroll on 1440x900) */}
+          {activeTab === 'overview' && (
+            <div id="overview-content" className="flex flex-col gap-4 animate-in fade-in duration-200">
+              {/* Level 1: One plain sentence + icon stating household status (LARGEST ELEMENT ON PAGE) */}
+              <GlanceBanner />
 
-          {/* 2. Top Hero Grid: Semi-Circle Gauge + Real-Time House Flow Illustration */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-stretch">
-            <div className="lg:col-span-5 flex flex-col h-full">
-              <SemiCircleGauge />
-            </div>
-            <div className="lg:col-span-7 flex flex-col h-full">
-              <HouseFlowIllustration />
-            </div>
-          </div>
+              {/* Level 2: The 3 key numbers (Today's usage, Your usual amount, Compared to neighbors) */}
+              <StatCardsRow />
 
-          {/* 3. Middle Row: Flagged Anomaly Action Card (when leak) + Zone Status Strip */}
-          {isLeak ? (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-stretch">
-              <div className="lg:col-span-7 flex flex-col">
-                <AnomalyCard onInspect={() => {
-                  const el = document.getElementById('telemetry-table-section');
-                  el?.scrollIntoView({ behavior: 'smooth' });
-                }} />
+              {/* Level 2: Gauge & House Flow Illustration Grouped Side-by-Side */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+                <div className="lg:col-span-5 flex flex-col">
+                  <SemiCircleGauge />
+                </div>
+                <div className="lg:col-span-7 flex flex-col">
+                  <HouseFlowIllustration />
+                </div>
               </div>
-              <div className="lg:col-span-5 flex flex-col justify-between">
-                <ZoneStatusStrip />
-              </div>
-            </div>
-          ) : (
-            <div className="w-full">
-              <ZoneStatusStrip />
             </div>
           )}
 
-          {/* 4. Stat Cards Row (Today's Usage, 14-Day Average, vs Peer Group) */}
-          <StatCardsRow />
+          {/* TAB 2: TRENDS — Dual-signal chart, 4-week peer comparison bar chart, zoomed-in overnight leak trendline */}
+          {activeTab === 'trends' && (
+            <div id="trends-content" className="animate-in fade-in duration-200">
+              <TrendsView />
+            </div>
+          )}
 
-          {/* 5. Telemetry Data Table & Recharts Trendline */}
-          <div id="telemetry-table-section">
-            <TelemetryTable onOpenDetails={(date) => {
-              alert(`Telemetry details recorded for ${date}: Household calibrated reading stored.`);
-            }} />
-          </div>
+          {/* TAB 3: HISTORY — Full reading table (date, daytime, overnight, status, 5-hourly buckets) */}
+          {activeTab === 'history' && (
+            <div id="history-content" className="animate-in fade-in duration-200">
+              <TelemetryTable onOpenDetails={(date) => {
+                // Table details modal handled internally
+              }} />
+            </div>
+          )}
 
         </div>
       </main>
 
-      {/* Manual Reading Modal */}
-      <ManualReadingModal
-        isOpen={isReadingModalOpen}
-        onClose={() => setIsReadingModalOpen(false)}
-      />
+      {/* Manual Reading Log Modal */}
+      {isReadingModalOpen && (
+        <ManualReadingModal isOpen={isReadingModalOpen} onClose={() => setIsReadingModalOpen(false)} />
+      )}
     </>
   );
 }

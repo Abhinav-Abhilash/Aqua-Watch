@@ -7,7 +7,7 @@ import TopHeader from '@/components/TopHeader';
 import ManualReadingModal from '@/components/ManualReadingModal';
 
 export default function AlertsPage() {
-  const { allActiveAlerts, setSelectedHouseholdId, resetDemoData, simulateLeak } = useAqua();
+  const { allActiveAlerts, setSelectedHouseholdId, resetDemoData, simulateLeak, resetHouseholdBaseline } = useAqua();
   const router = useRouter();
   const [isLogReadingOpen, setIsLogReadingOpen] = useState(false);
   const [shutoffStates, setShutoffStates] = useState<Record<string, boolean>>({});
@@ -37,16 +37,16 @@ export default function AlertsPage() {
           {/* Header & Controls */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <div className="flex items-center gap-1.5 text-slate-500 text-xs font-semibold uppercase tracking-wider">
-                <span>Network Integrity</span>
-                <span>/</span>
-                <span className="text-error font-bold">Active Anomaly Triage</span>
+              <div className="flex items-center gap-1.5 text-slate-500 text-xs font-medium">
+                <span>Network integrity</span>
+                <span className="text-slate-300">/</span>
+                <span className="text-red-700 font-semibold">Active alerts</span>
               </div>
               <h1 className="text-2xl font-bold text-slate-900 tracking-tight mt-1">
-                Active Alerts &amp; Anomaly Hub
+                Active alerts
               </h1>
               <p className="text-xs text-slate-500 mt-0.5">
-                Real-time algorithmic detection: &gt;2.5σ rolling deviation sustained across 2+ consecutive readings
+                Algorithmic detection: &gt;2.5σ rolling deviation sustained across 2+ consecutive readings
               </p>
             </div>
 
@@ -58,27 +58,27 @@ export default function AlertsPage() {
                   simulateLeak('h-henderson');
                   router.push('/');
                 }}
-                className="px-3 py-2 rounded-xl text-xs font-bold bg-error hover:bg-red-700 text-white shadow-xs transition-colors flex items-center gap-1.5"
+                className="px-3 py-2 rounded-md text-xs font-medium bg-red-600 hover:bg-red-700 text-white shadow-none transition-colors flex items-center gap-1.5 cursor-pointer"
               >
                 <span className="material-symbols-outlined text-[16px]">bolt</span>
-                <span>Simulate Leak (Henderson)</span>
+                <span>Simulate leak (Henderson)</span>
               </button>
               <button
                 id="btn-reset-alerts"
                 onClick={resetDemoData}
-                className="px-3 py-2 rounded-xl text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200/80 shadow-xs transition-colors"
+                className="px-3 py-2 rounded-md text-xs font-medium bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 shadow-none transition-colors cursor-pointer"
               >
-                Reset Demo
+                Reset demo
               </button>
             </div>
           </div>
 
           {allActiveAlerts.length === 0 ? (
-            <div className="bg-white rounded-2xl shadow-xs border border-slate-200/80 py-16 text-center p-6">
+            <div className="bg-white rounded-lg shadow-none border border-slate-200 py-16 text-center p-6">
               <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-3">
                 <span className="material-symbols-outlined text-[24px]">verified</span>
               </div>
-              <h3 className="text-base font-bold text-slate-900">Zero Active Anomalies Detected</h3>
+              <h3 className="text-base font-bold text-slate-900">Zero active anomalies detected</h3>
               <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1">
                 All properties are consuming water within normal 14-day statistical bounds.
               </p>
@@ -87,23 +87,23 @@ export default function AlertsPage() {
                   simulateLeak('h-henderson');
                   router.push('/');
                 }}
-                className="mt-4 px-4 py-2 rounded-xl text-xs font-bold text-white bg-error hover:bg-red-700 shadow-sm transition-colors"
+                className="mt-4 px-4 py-2 rounded-md text-xs font-medium text-white bg-red-600 hover:bg-red-700 shadow-none transition-colors cursor-pointer"
               >
-                Simulate Leak to Test Alert Flow
+                Simulate leak to test alert flow
               </button>
             </div>
           ) : (
             <div className="space-y-6">
               
               {/* SECTION 1: Possible Leaks (Red) */}
-              <div className="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden">
-                <div className="p-4 sm:p-5 border-b border-slate-100 bg-red-50/40 flex items-center justify-between">
+              <div className="bg-white rounded-lg shadow-none border border-slate-200 overflow-hidden">
+                <div className="p-4 sm:p-5 border-b border-slate-100 bg-red-50/30 flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <span className="material-symbols-outlined text-error text-[20px]">
+                    <span className="material-symbols-outlined text-red-700 text-[20px]">
                       crisis_alert
                     </span>
-                    <h2 className="font-bold text-base text-slate-900">Possible Leaks — Urgent Action Recommended</h2>
-                    <span className="bg-red-100 text-error font-bold text-xs px-2.5 py-0.5 rounded-full">
+                    <h2 className="font-bold text-base text-slate-900">Possible leaks — urgent action recommended</h2>
+                    <span className="bg-red-100 text-red-700 font-medium text-xs px-2 py-0.5 rounded">
                       {leakAlerts.length} Flagged
                     </span>
                   </div>
@@ -120,7 +120,7 @@ export default function AlertsPage() {
                   <div className="overflow-x-auto w-full">
                     <table className="w-full text-left border-collapse text-xs">
                       <thead>
-                        <tr className="bg-slate-50/80 text-slate-500 font-semibold uppercase tracking-wider text-[11px] border-b border-slate-100">
+                        <tr className="bg-slate-50 text-slate-600 font-semibold text-xs border-b border-slate-200">
                           <th className="py-3 px-6">Household / Location</th>
                           <th className="py-3 px-4">Telemetry Incident</th>
                           <th className="py-3 px-4">Excess Liters</th>
@@ -140,13 +140,13 @@ export default function AlertsPage() {
                               {/* Household */}
                               <td className="py-4 px-6 whitespace-nowrap">
                                 <div className="flex items-center gap-3">
-                                  <div className="w-1.5 h-10 bg-error rounded-full shrink-0" />
+                                  <div className="w-1.5 h-10 bg-red-600 rounded-full shrink-0" />
                                   <div className="flex flex-col min-w-0">
                                     <span className="font-bold text-sm text-slate-900 truncate">
                                       {alert.householdName}
                                     </span>
                                     <span className="text-xs text-slate-500 truncate">
-                                      {alert.locality} • {alert.occupants} occupants
+                                      {alert.locality}, {alert.occupants} occupants
                                     </span>
                                   </div>
                                 </div>
@@ -212,7 +212,7 @@ export default function AlertsPage() {
 
                               {/* Actions */}
                               <td className="py-4 px-6 text-right whitespace-nowrap">
-                                <div className="flex items-center justify-end gap-2">
+                                <div className="flex items-center justify-end gap-2.5 flex-wrap">
                                   <button
                                     onClick={() => handleInspect(alert.householdId)}
                                     className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs transition-colors"
@@ -229,6 +229,13 @@ export default function AlertsPage() {
                                   >
                                     {isShutoff ? 'Restore' : 'Shutoff'}
                                   </button>
+                                  <button
+                                    onClick={() => resetHouseholdBaseline(alert.householdId)}
+                                    className="text-xs text-slate-500 hover:text-slate-800 underline decoration-slate-300 underline-offset-2 ml-1 cursor-pointer transition-colors"
+                                    title="Confirm this lifestyle/usage change and reset 14-day baseline"
+                                  >
+                                    This is expected now
+                                  </button>
                                 </div>
                               </td>
                             </tr>
@@ -241,14 +248,14 @@ export default function AlertsPage() {
               </div>
 
               {/* SECTION 2: Higher Usage than Normal (Amber) */}
-              <div className="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden">
-                <div className="p-4 sm:p-5 border-b border-slate-100 bg-amber-50/40 flex items-center justify-between">
+              <div className="bg-white rounded-lg shadow-none border border-slate-200 overflow-hidden">
+                <div className="p-4 sm:p-5 border-b border-slate-100 bg-amber-50/30 flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
                     <span className="material-symbols-outlined text-amber-700 text-[20px]">
                       trending_up
                     </span>
-                    <h2 className="font-bold text-base text-slate-900">Higher Usage than Normal — Domestic Activity</h2>
-                    <span className="bg-amber-100 text-amber-800 font-bold text-xs px-2.5 py-0.5 rounded-full">
+                    <h2 className="font-bold text-base text-slate-900">Higher usage than usual — domestic activity</h2>
+                    <span className="bg-amber-100 text-amber-800 font-medium text-xs px-2 py-0.5 rounded">
                       {highUsageAlerts.length} Monitored
                     </span>
                   </div>
@@ -265,7 +272,7 @@ export default function AlertsPage() {
                   <div className="overflow-x-auto w-full">
                     <table className="w-full text-left border-collapse text-xs">
                       <thead>
-                        <tr className="bg-slate-50/80 text-slate-500 font-semibold uppercase tracking-wider text-[11px] border-b border-slate-100">
+                        <tr className="bg-slate-50 text-slate-600 font-semibold text-xs border-b border-slate-200">
                           <th className="py-3 px-6">Household</th>
                           <th className="py-3 px-4">Pattern</th>
                           <th className="py-3 px-4">Excess Volume</th>
@@ -294,13 +301,22 @@ export default function AlertsPage() {
                                 Elevated Usage
                               </span>
                             </td>
-                            <td className="py-4 px-6 text-right">
-                              <button
-                                onClick={() => handleInspect(alert.householdId)}
-                                className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs"
-                              >
-                                Inspect
-                              </button>
+                            <td className="py-4 px-6 text-right whitespace-nowrap">
+                              <div className="flex items-center justify-end gap-2.5">
+                                <button
+                                  onClick={() => handleInspect(alert.householdId)}
+                                  className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs"
+                                >
+                                  Inspect
+                                </button>
+                                <button
+                                  onClick={() => resetHouseholdBaseline(alert.householdId)}
+                                  className="text-xs text-slate-500 hover:text-slate-800 underline decoration-slate-300 underline-offset-2 ml-1 cursor-pointer transition-colors"
+                                  title="Confirm this lifestyle/usage change and reset 14-day baseline"
+                                >
+                                  This is expected now
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         ))}

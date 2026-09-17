@@ -12,7 +12,7 @@ export default function StatusFace({ severity }: StatusFaceProps) {
       <div
         id="status-face-alert"
         aria-label="Alert status face"
-        className="relative w-14 h-14 shrink-0 rounded-2xl bg-red-100/90 flex items-center justify-center shadow-inner border border-red-200 transition-colors duration-300"
+        className="relative w-12 h-12 sm:w-14 sm:h-14 shrink-0 rounded-lg bg-red-50 flex items-center justify-center border border-red-200 transition-colors duration-200"
       >
         <svg className="w-10 h-10" fill="none" viewBox="0 0 36 36">
           {/* Cheeks */}
@@ -38,7 +38,7 @@ export default function StatusFace({ severity }: StatusFaceProps) {
       <div
         id="status-face-elevated"
         aria-label="Elevated status face"
-        className="relative w-14 h-14 shrink-0 rounded-2xl bg-amber-100/90 flex items-center justify-center shadow-inner border border-amber-200 transition-colors duration-300"
+        className="relative w-12 h-12 sm:w-14 sm:h-14 shrink-0 rounded-lg bg-amber-50 flex items-center justify-center border border-amber-200 transition-colors duration-200"
       >
         <svg className="w-10 h-10" fill="none" viewBox="0 0 36 36">
           <circle cx="9" cy="22" fill="#FDE68A" opacity="0.7" r="2.5" />
@@ -61,7 +61,7 @@ export default function StatusFace({ severity }: StatusFaceProps) {
     <div
       id="status-face-calm"
       aria-label="Calm status face"
-      className="relative w-14 h-14 shrink-0 rounded-2xl bg-emerald-100/90 flex items-center justify-center shadow-inner border border-emerald-200 transition-colors duration-300"
+      className="relative w-12 h-12 sm:w-14 sm:h-14 shrink-0 rounded-lg bg-emerald-50 flex items-center justify-center border border-emerald-200 transition-colors duration-200"
     >
       <svg className="w-10 h-10" fill="none" viewBox="0 0 36 36">
         <circle cx="9" cy="21" fill="#A7F3D0" opacity="0.6" r="2.5" />

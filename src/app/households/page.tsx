@@ -55,13 +55,13 @@ export default function HouseholdsPage() {
           {/* Header & Filter Bar */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <div className="flex items-center gap-1.5 text-slate-500 text-xs font-semibold uppercase tracking-wider">
-                <span>District Telemetry</span>
-                <span>/</span>
-                <span className="text-primary font-bold">Property Directory</span>
+              <div className="flex items-center gap-1.5 text-slate-500 text-xs font-medium">
+                <span>District telemetry</span>
+                <span className="text-slate-300">/</span>
+                <span className="text-[#2F6FED] font-semibold">Property directory</span>
               </div>
               <h1 className="text-2xl font-bold text-slate-900 tracking-tight mt-1">
-                Monitored Households Directory
+                Monitored households
               </h1>
               <p className="text-xs text-slate-500 mt-0.5">
                 {households.length} residential properties enrolled across 3 sub-districts
@@ -69,44 +69,44 @@ export default function HouseholdsPage() {
             </div>
 
             {/* Filter Pills */}
-            <div className="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-slate-200/80 shadow-xs flex-wrap">
+            <div className="flex items-center gap-1.5 bg-white p-1 rounded-md border border-slate-200 shadow-none flex-wrap">
               <button
                 onClick={() => setFilter('ALL')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                  filter === 'ALL' ? 'bg-primary-container text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                className={`px-3 py-1.5 rounded text-xs font-medium transition-colors cursor-pointer ${
+                  filter === 'ALL' ? 'bg-[#2F6FED] text-white' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 All ({households.length})
               </button>
               <button
                 onClick={() => setFilter('ALERTS')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 ${
-                  filter === 'ALERTS' ? 'bg-error text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                className={`px-3 py-1.5 rounded text-xs font-medium transition-colors flex items-center gap-1.5 cursor-pointer ${
+                  filter === 'ALERTS' ? 'bg-red-600 text-white' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-error" />
+                <span className="w-1.5 h-1.5 rounded-full bg-red-600" />
                 Alerts ({householdCards.filter(c => c.isLeak).length})
               </button>
               <button
                 onClick={() => setFilter('PINE_VALLEY')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                  filter === 'PINE_VALLEY' ? 'bg-primary-container text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                className={`px-3 py-1.5 rounded text-xs font-medium transition-colors cursor-pointer ${
+                  filter === 'PINE_VALLEY' ? 'bg-[#2F6FED] text-white' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 Pine Valley
               </button>
               <button
                 onClick={() => setFilter('OAKRIDGE')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                  filter === 'OAKRIDGE' ? 'bg-primary-container text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                className={`px-3 py-1.5 rounded text-xs font-medium transition-colors cursor-pointer ${
+                  filter === 'OAKRIDGE' ? 'bg-[#2F6FED] text-white' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 Oakridge
               </button>
               <button
                 onClick={() => setFilter('HARBORVIEW')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                  filter === 'HARBORVIEW' ? 'bg-primary-container text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                className={`px-3 py-1.5 rounded text-xs font-medium transition-colors cursor-pointer ${
+                  filter === 'HARBORVIEW' ? 'bg-[#2F6FED] text-white' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 Harborview
@@ -115,8 +115,8 @@ export default function HouseholdsPage() {
           </div>
 
           {/* Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {filteredCards.map(({ household, latestReading, baseline, percentage, isLeak }) => {
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+            {filteredCards.map(({ household, latestReading, baseline, percentage, isLeak, analysis }) => {
               // Mini arc dash calculations
               const arcLength = 125;
               const ratio = Math.min(Math.max(percentage / 150, 0.1), 1.0);
@@ -125,58 +125,71 @@ export default function HouseholdsPage() {
               return (
                 <div
                   key={household.id}
-                  className="bg-white rounded-2xl p-5 sm:p-6 shadow-xs border border-slate-200/80 flex flex-col justify-between transition-all hover:shadow-md relative overflow-hidden group"
+                  className="bg-white rounded-lg p-5 shadow-sm border border-slate-200 flex flex-col justify-between transition-all hover:shadow-md relative overflow-hidden group"
                 >
                   {/* Top Status Bar Accent */}
-                  <div className={`absolute top-0 left-0 right-0 h-1.5 ${
-                    isLeak ? 'bg-error' : 'bg-emerald-500'
+                  <div className={`absolute top-0 left-0 right-0 h-1 ${
+                    isLeak ? 'bg-red-600' : 'bg-emerald-600'
                   }`} />
 
                   <div>
                     {/* Top Row: Name & Badge */}
                     <div className="flex items-start justify-between gap-3 mb-1 pt-1">
                       <div>
-                        <h2 className="font-bold text-base text-slate-900 group-hover:text-primary transition-colors">
+                        <h2 className="font-bold text-base text-slate-900 group-hover:text-[#2F6FED] transition-colors">
                           {household.name}
                         </h2>
                         <div className="flex items-center gap-1 text-xs text-slate-500 mt-0.5">
                           <span className="material-symbols-outlined text-[14px]">pin_drop</span>
-                          <span>{household.locality} • {household.occupants} occupants</span>
+                          <span>{household.locality}, {household.occupants} occupants</span>
                         </div>
                       </div>
 
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold shrink-0 ${
+                      <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium shrink-0 ${
                         isLeak
-                          ? 'bg-red-100 text-error'
+                          ? 'bg-red-50 text-red-700'
                           : 'bg-emerald-50 text-emerald-700'
                       }`}>
                         <span className={`w-1.5 h-1.5 rounded-full ${
-                          isLeak ? 'bg-error animate-ping' : 'bg-emerald-500'
+                          isLeak ? 'bg-red-600 animate-ping' : 'bg-emerald-600'
                         }`} />
-                        {isLeak ? 'Leak Alert' : 'Normal'}
+                        {isLeak ? 'Leak alert' : 'Normal'}
                       </span>
                     </div>
 
-                    {/* Subtitle */}
-                    <div className="flex items-center gap-2 text-slate-500 text-xs my-3 pb-2 border-b border-slate-100">
-                      <span className="px-1.5 py-0.5 rounded bg-slate-100 text-[11px] font-mono font-semibold">
-                        MTR-{household.id.slice(-4).toUpperCase()}
+                    {/* Subtitle & Feature Tags */}
+                    <div className="flex flex-wrap items-center gap-2 text-slate-500 text-xs my-3 pb-2 border-b border-slate-100">
+                      <span className="px-1.5 py-0.5 rounded bg-slate-100 text-[11px] font-mono">
+                        MTR-{household.id.slice(-4).toLowerCase()}
                       </span>
-                      <span>·</span>
-                      <span>Sub-meter: Ultrasonic Dual</span>
+                      {household.expectedOvernightLiters && household.expectedOvernightLiters > 0 ? (
+                        <span className="px-2 py-0.5 rounded bg-blue-50 text-[#2F6FED] text-[11px] font-medium">
+                          {household.expectedOvernightLiters} L/night scheduled
+                        </span>
+                      ) : null}
+                      {analysis.status.hasUnusualOvernightActivity ? (
+                        <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[11px] font-medium">
+                          Guest burst activity
+                        </span>
+                      ) : null}
+                      {household.baselineResetDate ? (
+                        <span className="px-2 py-0.5 rounded bg-blue-50 text-[#2F6FED] text-[11px] font-medium">
+                          Reset: {household.baselineResetDate}
+                        </span>
+                      ) : null}
                     </div>
 
                     {/* Visual Flow Comparison + Mini Arc Gauge */}
-                    <div className="bg-slate-50 rounded-xl p-4 mb-4 flex items-center justify-between gap-4">
+                    <div className="bg-slate-50 rounded-lg p-4 mb-4 flex items-center justify-between gap-4">
                       <div className="flex flex-col">
-                        <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                          Current Load
+                        <span className="text-xs font-medium text-slate-500">
+                          Current load
                         </span>
                         <div className="flex items-baseline gap-1 mt-0.5">
                           <span className={`text-2xl font-extrabold ${isLeak ? 'text-error' : 'text-slate-900'}`}>
                             {percentage}
                           </span>
-                          <span className="text-xs font-semibold text-slate-500">% Baseline</span>
+                          <span className="text-xs text-slate-500">% of usual</span>
                         </div>
                         <span className="text-xs text-slate-500 mt-0.5 flex items-center gap-1">
                           <span className={`material-symbols-outlined text-[14px] ${
@@ -199,7 +212,7 @@ export default function HouseholdsPage() {
                             strokeWidth="8"
                             strokeLinecap="round"
                           />
-                          {/* Active Arc */}
+                          {/* Active Gauge Arc */}
                           <path
                             d="M 10 50 A 40 40 0 0 1 90 50"
                             fill="none"
@@ -226,17 +239,17 @@ export default function HouseholdsPage() {
 
                     {/* Stats Matrix */}
                     <div className="grid grid-cols-3 gap-2 text-center mb-4">
-                      <div className="bg-slate-50 rounded-xl p-2.5 flex flex-col">
+                      <div className="bg-slate-50 rounded-lg p-2.5 flex flex-col">
                         <span className="text-[11px] text-slate-500">Today</span>
                         <span className="text-xs font-bold text-slate-900 mt-0.5">{latestReading} L</span>
                       </div>
-                      <div className="bg-slate-50 rounded-xl p-2.5 flex flex-col">
-                        <span className="text-[11px] text-slate-500">Baseline</span>
+                      <div className="bg-slate-50 rounded-lg p-2.5 flex flex-col">
+                        <span className="text-[11px] text-slate-500">Usual</span>
                         <span className="text-xs font-bold text-slate-600 mt-0.5">{baseline} L</span>
                       </div>
-                      <div className="bg-slate-50 rounded-xl p-2.5 flex flex-col">
+                      <div className="bg-slate-50 rounded-lg p-2.5 flex flex-col">
                         <span className={`text-[11px] font-medium ${isLeak ? 'text-error' : 'text-slate-500'}`}>
-                          Flow Strain
+                          Flow
                         </span>
                         <span className={`text-xs font-bold mt-0.5 ${isLeak ? 'text-error' : 'text-slate-900'}`}>
                           {isLeak ? '4.8 L/m' : '0.4 L/m'}
@@ -250,7 +263,7 @@ export default function HouseholdsPage() {
                     <button
                       onClick={() => alert(`Connecting with resident at ${household.name}...`)}
                       type="button"
-                      className="flex-1 flex items-center justify-center gap-1 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition-colors"
+                      className="flex-1 flex items-center justify-center gap-1 px-3 py-2 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-xs transition-colors cursor-pointer"
                     >
                       <span className="material-symbols-outlined text-[16px]">call</span>
                       <span>Contact</span>
@@ -258,7 +271,7 @@ export default function HouseholdsPage() {
                     <button
                       onClick={() => handleSelectHousehold(household.id)}
                       type="button"
-                      className="flex-1 flex items-center justify-center gap-1 px-3 py-2 rounded-xl bg-primary-container text-white hover:bg-primary font-semibold text-xs shadow-xs transition-colors"
+                      className="flex-1 flex items-center justify-center gap-1 px-3 py-2 rounded-md bg-[#2F6FED] text-white hover:bg-[#2558c4] font-medium text-xs shadow-none transition-colors cursor-pointer"
                     >
                       <span>Telemetry</span>
                       <span className="material-symbols-outlined text-[16px]">arrow_forward</span>

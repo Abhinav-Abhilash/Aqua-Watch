@@ -7,7 +7,7 @@ import { useAqua } from '@/context/AquaContext';
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const { allActiveAlerts, isMobileMenuOpen, setIsMobileMenuOpen } = useAqua();
+  const { allActiveAlerts, isMobileMenuOpen, setIsMobileMenuOpen, logout } = useAqua();
   const activeAlertCount = allActiveAlerts.length;
 
   const closeMenu = () => setIsMobileMenuOpen(false);
@@ -112,10 +112,20 @@ export default function Sidebar() {
             </div>
             <div className="flex flex-col min-w-0">
               <span className="text-xs font-bold text-slate-900 truncate">Sarah Jenkins</span>
-              <span className="text-[10px] text-slate-500 truncate">Operations Lead</span>
+              <span className="text-[10px] text-slate-500 truncate">Demo User</span>
             </div>
           </div>
-          <span className="material-symbols-outlined text-[18px] text-slate-400">expand_more</span>
+          <button
+            id="btn-sidebar-logout"
+            onClick={() => {
+              closeMenu();
+              logout();
+            }}
+            title="Sign out / Switch to Login"
+            className="p-1 rounded-lg text-slate-400 hover:text-red-600 hover:bg-slate-200/60 transition-colors cursor-pointer"
+          >
+            <span className="material-symbols-outlined text-[18px]">logout</span>
+          </button>
         </div>
       </div>
     </>

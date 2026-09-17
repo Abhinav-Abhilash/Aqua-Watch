@@ -16,7 +16,9 @@ interface AquaContextType {
   leakStatus: LeakStatus;
   allActiveAlerts: ActiveAlert[];
   addHousehold: (data: Omit<Household, 'id'>) => string;
-  addReading: (data: { householdId: string; date: string; daytimeLiters?: number; overnightLiters?: number; liters?: number }) => void;
+  updateHousehold: (householdId: string, updates: Partial<Household>) => void;
+  resetHouseholdBaseline: (householdId: string, resetDate?: string) => void;
+  addReading: (data: { householdId: string; date: string; daytimeLiters?: number; overnightLiters?: number; liters?: number; overnightBuckets?: [number, number, number, number, number] }) => void;
   simulateLeak: (householdId?: string) => void;
   resetDemoData: () => void;
   isSimulatedLeakActive: boolean;
@@ -24,44 +26,73 @@ interface AquaContextType {
   isMobileMenuOpen: boolean;
   setIsMobileMenuOpen: (open: boolean) => void;
   toggleMobileMenu: () => void;
+  isLoggedIn: boolean;
+  login: (demo?: boolean) => void;
+  logout: () => void;
 }
 
-const STORAGE_KEY_HOUSEHOLDS = 'aquawatch_households_v3';
-const STORAGE_KEY_READINGS = 'aquawatch_readings_v3';
+const STORAGE_KEY_HOUSEHOLDS = 'aquawatch_v5_gold_households';
+const STORAGE_KEY_READINGS = 'aquawatch_v5_gold_readings';
+const STORAGE_KEY_AUTH = 'aquawatch_v5_gold_auth';
 
 const AquaContext = createContext<AquaContextType | undefined>(undefined);
 
 export function AquaProvider({ children }: { children: React.ReactNode }) {
   const [households, setHouseholds] = useState<Household[]>(INITIAL_HOUSEHOLDS);
-  const [readings, setReadings] = useState<MeterReading[]>([]);
+  const [readings, setReadings] = useState<MeterReading[]>(() => generateSeedReadings());
   const [selectedHouseholdId, setSelectedHouseholdId] = useState<string>('h-henderson');
-  const [isLoaded, setIsLoaded] = useState<boolean>(false);
+  const [isLoaded, setIsLoaded] = useState<boolean>(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(prev => !prev);
 
-  // Initialize from LocalStorage or seed data on mount
+  const login = (demo?: boolean) => {
+    setIsLoggedIn(true);
+    try {
+      localStorage.setItem(STORAGE_KEY_AUTH, 'true');
+    } catch (e) {
+      // ignore
+    }
+  };
+
+  const logout = () => {
+    setIsLoggedIn(false);
+    try {
+      localStorage.removeItem(STORAGE_KEY_AUTH);
+    } catch (e) {
+      // ignore
+    }
+  };
+
+  // Hydrate from LocalStorage on mount if valid
   useEffect(() => {
     try {
+      const savedAuth = localStorage.getItem(STORAGE_KEY_AUTH);
+      if (savedAuth === 'true') {
+        setIsLoggedIn(true);
+      }
+
       const savedHouseholds = localStorage.getItem(STORAGE_KEY_HOUSEHOLDS);
       const savedReadings = localStorage.getItem(STORAGE_KEY_READINGS);
 
       if (savedHouseholds && savedReadings) {
-        setHouseholds(JSON.parse(savedHouseholds));
-        setReadings(JSON.parse(savedReadings));
-      } else {
-        const seeded = generateSeedReadings();
-        setHouseholds(INITIAL_HOUSEHOLDS);
-        setReadings(seeded);
-        localStorage.setItem(STORAGE_KEY_HOUSEHOLDS, JSON.stringify(INITIAL_HOUSEHOLDS));
-        localStorage.setItem(STORAGE_KEY_READINGS, JSON.stringify(seeded));
+        const parsedH = JSON.parse(savedHouseholds);
+        const parsedR = JSON.parse(savedReadings);
+        if (
+          Array.isArray(parsedH) && 
+          parsedH.some(h => h.id === 'h-henderson') && 
+          Array.isArray(parsedR) && 
+          parsedR.length > 0 && 
+          parsedR[0].overnightBuckets
+        ) {
+          setHouseholds(parsedH);
+          setReadings(parsedR);
+        }
       }
     } catch {
-      const seeded = generateSeedReadings();
-      setHouseholds(INITIAL_HOUSEHOLDS);
-      setReadings(seeded);
+      // Keep default initialized seed state
     }
-    setIsLoaded(true);
   }, []);
 
   const persistState = (newHouseholds: Household[], newReadings: MeterReading[]) => {
@@ -118,7 +149,8 @@ export function AquaProvider({ children }: { children: React.ReactNode }) {
             confidenceLabel: analysis.status.peerDivergence.label,
             confidencePercent: analysis.status.peerDivergence.confidencePercent,
             isPeerFlat: analysis.status.peerDivergence.isPeerFlat,
-            reason: analysis.status.explanation
+            reason: analysis.status.explanation,
+            canResetBaseline: true
           });
         }
       }
@@ -127,12 +159,42 @@ export function AquaProvider({ children }: { children: React.ReactNode }) {
     return alerts;
   }, [households, readings]);
 
+  // Update an existing household (e.g. expectedOvernightLiters)
+  const updateHousehold = (householdId: string, updates: Partial<Household>) => {
+    const updated = households.map(h => {
+      if (h.id === householdId) {
+        return { ...h, ...updates };
+      }
+      return h;
+    });
+    setHouseholds(updated);
+    persistState(updated, readings);
+  };
+
+  // Lifestyle Change / Human-confirmed baseline reset
+  const resetHouseholdBaseline = (householdId: string, resetDate?: string) => {
+    const targetDate = resetDate || new Date().toISOString().split('T')[0];
+    const updated = households.map(h => {
+      if (h.id === householdId) {
+        return {
+          ...h,
+          baselineResetDate: targetDate,
+          baselineResetNote: `baseline reset by user on ${targetDate}`
+        };
+      }
+      return h;
+    });
+    setHouseholds(updated);
+    persistState(updated, readings);
+  };
+
   // Add a new household and generate 60 days of baseline
   const addHousehold = (data: Omit<Household, 'id'>): string => {
     const newId = `h-${Date.now()}`;
     const newHousehold: Household = {
       ...data,
       id: newId,
+      expectedOvernightLiters: data.expectedOvernightLiters || 0,
       created_at: new Date().toISOString()
     };
 
@@ -151,8 +213,15 @@ export function AquaProvider({ children }: { children: React.ReactNode }) {
       const dayOfWeek = dateObj.getDay();
       const weekendMultiplier = (dayOfWeek === 6 || dayOfWeek === 0) ? 1.16 : 1.0;
       const noise = 1 + (((dayOffset * 19) % 20) - 10) / 100;
-      const overnightLiters = 5 + (dayOffset % 4);
       const daytimeLiters = Math.round(baseDaily * weekendMultiplier * noise);
+
+      const b1 = 1 + (dayOffset % 2);
+      const b2 = 1 + ((dayOffset + 1) % 2);
+      const b3 = 1 + ((dayOffset + 2) % 2);
+      const b4 = 1 + ((dayOffset + 3) % 2);
+      const b5 = 1 + ((dayOffset + 4) % 2);
+      const overnightBuckets: [number, number, number, number, number] = [b1, b2, b3, b4, b5];
+      const overnightLiters = b1 + b2 + b3 + b4 + b5;
 
       newReadings.push({
         id: `r-${newId}-${dateStr}`,
@@ -160,6 +229,7 @@ export function AquaProvider({ children }: { children: React.ReactNode }) {
         date: dateStr,
         daytimeLiters,
         overnightLiters,
+        overnightBuckets,
         liters: daytimeLiters + overnightLiters
       });
     }
@@ -178,18 +248,19 @@ export function AquaProvider({ children }: { children: React.ReactNode }) {
     date,
     daytimeLiters,
     overnightLiters,
-    liters
+    liters,
+    overnightBuckets
   }: {
     householdId: string;
     date: string;
     daytimeLiters?: number;
     overnightLiters?: number;
     liters?: number;
+    overnightBuckets?: [number, number, number, number, number];
   }) => {
     let effectiveDaytime = daytimeLiters;
     let effectiveOvernight = overnightLiters;
     if (effectiveDaytime === undefined && effectiveOvernight === undefined && liters !== undefined) {
-      // Proportional allocation: if reading is normal (~500L), overnight is ~6L; if reading is elevated, overnight gets a realistic share
       effectiveDaytime = Math.round(liters * 0.96);
       effectiveOvernight = Math.round(liters * 0.04);
     } else {
@@ -198,12 +269,21 @@ export function AquaProvider({ children }: { children: React.ReactNode }) {
     }
     const total = effectiveDaytime + effectiveOvernight;
 
+    const effectiveBuckets: [number, number, number, number, number] = overnightBuckets || [
+      Math.round(effectiveOvernight * 0.2),
+      Math.round(effectiveOvernight * 0.2),
+      Math.round(effectiveOvernight * 0.2),
+      Math.round(effectiveOvernight * 0.2),
+      Math.round(effectiveOvernight * 0.2)
+    ];
+
     const newReading: MeterReading = {
       id: `r-${householdId}-${date}-${Date.now()}`,
       household_id: householdId,
       date,
       daytimeLiters: effectiveDaytime,
       overnightLiters: effectiveOvernight,
+      overnightBuckets: effectiveBuckets,
       liters: total
     };
 
@@ -230,15 +310,23 @@ export function AquaProvider({ children }: { children: React.ReactNode }) {
 
     if (hReadings.length < 5) return;
 
-    // Elevate the last 4 days' overnight flow by +200L (+40% of baseline daily consumption)
+    // Elevate the last 4 days' overnight flow by +200L continuously across all 5 buckets
     const updatedReadings = readings.map(r => {
       if (r.household_id !== targetId) return r;
       const idx = hReadings.findIndex(hr => hr.id === r.id);
       if (idx >= hReadings.length - 4) {
         const elevatedOvernight = Math.round(r.overnightLiters + 200);
+        const elevatedBuckets: [number, number, number, number, number] = [
+          (r.overnightBuckets?.[0] || 1) + 40,
+          (r.overnightBuckets?.[1] || 1) + 40,
+          (r.overnightBuckets?.[2] || 1) + 40,
+          (r.overnightBuckets?.[3] || 1) + 40,
+          (r.overnightBuckets?.[4] || 1) + 40
+        ];
         return {
           ...r,
           overnightLiters: elevatedOvernight,
+          overnightBuckets: elevatedBuckets,
           liters: r.daytimeLiters + elevatedOvernight,
           is_simulated: true
         };
@@ -272,6 +360,8 @@ export function AquaProvider({ children }: { children: React.ReactNode }) {
         leakStatus,
         allActiveAlerts,
         addHousehold,
+        updateHousehold,
+        resetHouseholdBaseline,
         addReading,
         simulateLeak,
         resetDemoData,
@@ -279,7 +369,10 @@ export function AquaProvider({ children }: { children: React.ReactNode }) {
         isLoaded,
         isMobileMenuOpen,
         setIsMobileMenuOpen,
-        toggleMobileMenu
+        toggleMobileMenu,
+        isLoggedIn,
+        login,
+        logout
       }}
     >
       {children}

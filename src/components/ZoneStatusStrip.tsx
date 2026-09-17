@@ -11,9 +11,9 @@ export default function ZoneStatusStrip() {
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
       
       {/* Zone 1 */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+      <div className="bg-white p-4 rounded-lg border border-slate-200/80 shadow-none flex flex-col justify-between">
         <div className="flex items-center justify-between text-xs">
-          <span className="font-semibold text-slate-500">Zone 1 • Kitchen</span>
+          <span className="font-semibold text-slate-500">Zone 1: Kitchen</span>
           <span className="w-2 h-2 rounded-full bg-emerald-500" />
         </div>
         <div className="my-2">
@@ -32,15 +32,15 @@ export default function ZoneStatusStrip() {
 
       {/* Zone 2 (Reactive to Leak) */}
       <div
-        className={`p-4 rounded-2xl shadow-xs flex flex-col justify-between transition-all ${
+        className={`p-4 rounded-lg shadow-none flex flex-col justify-between transition-all ${
           isLeak
-            ? 'bg-red-50/60 border-2 border-red-300'
+            ? 'bg-red-50/60 border border-red-300'
             : 'bg-white border border-slate-200/80'
         }`}
       >
         <div className="flex items-center justify-between text-xs">
           <span className={`font-semibold ${isLeak ? 'text-error' : 'text-slate-500'}`}>
-            Zone 2 • Irrigation
+            Zone 2: Irrigation
           </span>
           <span
             className={`w-2 h-2 rounded-full ${
@@ -80,9 +80,9 @@ export default function ZoneStatusStrip() {
       </div>
 
       {/* Zone 3 */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+      <div className="bg-white p-4 rounded-lg border border-slate-200/80 shadow-none flex flex-col justify-between">
         <div className="flex items-center justify-between text-xs">
-          <span className="font-semibold text-slate-500">Zone 3 • Bath</span>
+          <span className="font-semibold text-slate-500">Zone 3: Bath</span>
           <span className="w-2 h-2 rounded-full bg-emerald-500" />
         </div>
         <div className="my-2">

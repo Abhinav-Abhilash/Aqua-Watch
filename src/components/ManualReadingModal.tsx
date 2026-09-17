@@ -130,13 +130,16 @@ export default function ManualReadingModal({ isOpen, onClose }: ManualReadingMod
           </div>
 
           {/* High-draw note */}
-          <div className={`p-3 rounded-xl text-xs border ${
+          <div className={`p-3 rounded-lg text-xs border ${
             willBeElevated
               ? 'bg-amber-50 border-amber-200 text-amber-900'
-              : 'bg-slate-50 border-slate-200 text-slate-600'
+              : 'bg-slate-50 border-slate-200 text-slate-700'
           }`}>
-            <p className="font-semibold">
-              {willBeElevated ? '⚠️ Elevated Reading Detected' : '✓ Within Standard Range'}
+            <p className="font-medium flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[16px]">
+                {willBeElevated ? 'warning' : 'check_circle'}
+              </span>
+              <span>{willBeElevated ? 'Elevated reading detected' : 'Within standard range'}</span>
             </p>
             <p className="text-[11px] text-slate-500 mt-0.5">
               {willBeElevated
