@@ -29,6 +29,8 @@ interface AquaContextType {
   isLoggedIn: boolean;
   login: (demo?: boolean) => void;
   logout: () => void;
+  dashboardView: 'overview' | 'trends' | 'history';
+  setDashboardView: (view: 'overview' | 'trends' | 'history') => void;
 }
 
 const STORAGE_KEY_HOUSEHOLDS = 'aquawatch_v5_gold_households';
@@ -44,6 +46,7 @@ export function AquaProvider({ children }: { children: React.ReactNode }) {
   const [isLoaded, setIsLoaded] = useState<boolean>(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [dashboardView, setDashboardView] = useState<'overview' | 'trends' | 'history'>('overview');
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(prev => !prev);
 
@@ -372,7 +375,9 @@ export function AquaProvider({ children }: { children: React.ReactNode }) {
         toggleMobileMenu,
         isLoggedIn,
         login,
-        logout
+        logout,
+        dashboardView,
+        setDashboardView
       }}
     >
       {children}

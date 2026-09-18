@@ -40,42 +40,42 @@ export default function TelemetryTable({ onOpenDetails }: TelemetryTableProps) {
   const declaredLiters = selectedHousehold.expectedOvernightLiters || 0;
 
   return (
-    <div className="bg-white rounded-lg border border-slate-200 shadow-none overflow-hidden flex flex-col">
+    <div className="bg-[#FAFAFA] rounded-2xl border border-[#DCDCDC] overflow-hidden flex flex-col">
       
       {/* Table Header Toolbar */}
-      <div className="p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100">
+      <div className="p-4 sm:p-6 flex flex-wrap items-center justify-between gap-4 border-b border-[#DCDCDC]">
         <div>
-          <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-xs font-medium text-slate-700 bg-slate-100 px-2 py-0.5 rounded">
-              Telemetry history
+          <div className="flex flex-wrap items-center gap-2.5">
+            <span className="text-xs font-semibold text-[#1A1A1A] bg-[#E0E0E0] px-3 py-1 rounded-full border border-[#DCDCDC]">
+              Telemetry Ledger
             </span>
-            <h2 className="font-bold text-base text-slate-900 tracking-tight">
+            <h2 className="font-bold text-base text-[#1A1A1A] tracking-tight">
               Consumption history and readings
             </h2>
             <button
               onClick={() => setShowChart(!showChart)}
-              className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-blue-50 text-primary hover:bg-blue-100 transition-colors flex items-center gap-1 cursor-pointer"
+              className="text-xs font-semibold px-3 py-1 rounded-full bg-[#1A1A1A] text-white hover:bg-black transition-colors flex items-center gap-1 cursor-pointer shadow-[0_2px_6px_rgba(0,0,0,0.12)]"
             >
-              <span className="material-symbols-outlined text-[14px]">
+              <span className="material-symbols-outlined text-[15px]">
                 {showChart ? 'expand_less' : 'show_chart'}
               </span>
               <span>{showChart ? 'Hide Trend Chart' : 'View Dual-Signal Chart'}</span>
             </button>
           </div>
-          <p className="text-xs text-slate-500 mt-1">
-            Real-time calibrated readings: Daytime domestic activity vs. Overnight 5-hourly flow shape
+          <p className="text-xs text-[#8A8A8A] mt-1">
+            Calibrated readings: Daytime domestic activity vs. Overnight 5-hourly flow shape
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 flex-wrap">
-          {/* Transparent Declared Scheduled Use Badge */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* Scheduled Overnight Use Badge */}
           <div
             id="scheduled-overnight-badge"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-700"
+            className="flex flex-wrap items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#EDEDED] border border-[#DCDCDC] text-xs text-[#1A1A1A]"
           >
-            <span className="material-symbols-outlined text-[16px] text-slate-500">schedule</span>
+            <span className="material-symbols-outlined text-[15px] text-[#6B6B6B]">schedule</span>
             <span>
-              scheduled overnight use: <strong className="text-slate-900">{declaredLiters} L/night</strong> — excluded from leak detection
+              scheduled overnight: <strong className="text-[#1A1A1A]">{declaredLiters} L/night</strong>
             </span>
             <button
               id="btn-edit-scheduled-overnight"
@@ -83,34 +83,34 @@ export default function TelemetryTable({ onOpenDetails }: TelemetryTableProps) {
                 setTempScheduled(String(declaredLiters));
                 setIsEditingScheduled(true);
               }}
-              className="ml-1 text-primary hover:text-blue-800 underline font-semibold text-xs cursor-pointer"
+              className="ml-1 text-[#1A1A1A] hover:underline font-semibold text-xs cursor-pointer"
             >
               Edit
             </button>
           </div>
 
           {/* Range Selector */}
-          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-semibold text-slate-600">
+          <div className="flex items-center gap-1 bg-[#E0E0E0] p-1 rounded-full border border-[#DCDCDC] text-xs font-semibold text-[#6B6B6B]">
             <button
               onClick={() => setFilterRange('7d')}
-              className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
-                filterRange === '7d' ? 'bg-white text-slate-900 shadow-xs' : 'hover:text-slate-900'
+              className={`px-3 py-1 rounded-full transition-colors cursor-pointer ${
+                filterRange === '7d' ? 'bg-[#1A1A1A] text-white shadow-[0_2px_6px_rgba(0,0,0,0.12)]' : 'hover:text-[#1A1A1A]'
               }`}
             >
               7 Days
             </button>
             <button
               onClick={() => setFilterRange('14d')}
-              className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
-                filterRange === '14d' ? 'bg-white text-slate-900 shadow-xs' : 'hover:text-slate-900'
+              className={`px-3 py-1 rounded-full transition-colors cursor-pointer ${
+                filterRange === '14d' ? 'bg-[#1A1A1A] text-white shadow-[0_2px_6px_rgba(0,0,0,0.12)]' : 'hover:text-[#1A1A1A]'
               }`}
             >
               14 Days
             </button>
             <button
               onClick={() => setFilterRange('30d')}
-              className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
-                filterRange === '30d' ? 'bg-white text-slate-900 shadow-xs' : 'hover:text-slate-900'
+              className={`px-3 py-1 rounded-full transition-colors cursor-pointer ${
+                filterRange === '30d' ? 'bg-[#1A1A1A] text-white shadow-[0_2px_6px_rgba(0,0,0,0.12)]' : 'hover:text-[#1A1A1A]'
               }`}
             >
               30 Days
@@ -119,89 +119,86 @@ export default function TelemetryTable({ onOpenDetails }: TelemetryTableProps) {
         </div>
       </div>
 
-      {/* Burst Pattern Informational Note in Level 3/History */}
+      {/* Burst Pattern Informational Note */}
       {leakStatus.hasUnusualOvernightActivity && (
         <div
           id="burst-pattern-informational-note"
-          className="mx-5 my-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-start gap-3 text-xs text-slate-700"
+          className="mx-4 sm:mx-6 my-3 p-3.5 rounded-2xl bg-[#EDEDED] border border-[#DCDCDC] flex items-start gap-3 text-xs text-[#1A1A1A]"
         >
-          <span className="material-symbols-outlined text-slate-500 text-[20px] shrink-0 mt-0.5">
+          <span className="material-symbols-outlined text-[#6B6B6B] text-[20px] shrink-0 mt-0.5">
             bedtime
           </span>
           <div className="flex flex-col">
-            <span className="font-bold text-slate-900 text-xs">
-              unusual overnight activity — may be a guest or late-night use
+            <span className="font-bold text-[#1A1A1A] text-xs">
+              Unusual overnight activity — may be a guest or late-night use
             </span>
-            <span className="text-slate-500 text-[11px] mt-0.5">
+            <span className="text-[#6B6B6B] text-[11px] mt-0.5">
               Overnight flow is concentrated in 1–2 isolated hourly bursts rather than continuous trickle across most hours. Water management filters this out from plumbing leak alerts.
             </span>
           </div>
         </div>
       )}
 
-      {/* Baseline Reset Log Note in Level 3/History */}
+      {/* Baseline Reset Log Note */}
       {selectedHousehold.baselineResetDate && (
         <div
           id="baseline-reset-log-note"
-          className="mx-5 my-2 p-3 rounded-xl bg-blue-50/60 border border-blue-200/60 flex items-center justify-between gap-3 text-xs text-blue-900"
+          className="mx-4 sm:mx-6 my-2 p-3 rounded-2xl bg-[#EDEDED] border border-[#DCDCDC] flex flex-wrap items-center justify-between gap-3 text-xs text-[#1A1A1A]"
         >
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary text-[18px]">history_edu</span>
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="material-symbols-outlined text-[#1A1A1A] text-[18px]">history_edu</span>
             <span>
-              baseline reset by user on <strong>{selectedHousehold.baselineResetDate}</strong> — tracking new 14-day consumption baseline from this date forward
+              Baseline reset by user on <strong>{selectedHousehold.baselineResetDate}</strong> — tracking new 14-day consumption baseline from this date forward
             </span>
           </div>
-          <span className="text-[11px] text-blue-700 font-semibold px-2.5 py-0.5 rounded-md bg-white border border-blue-200 shadow-2xs shrink-0">
-            Confirmed Normal Anchor
+          <span className="text-[11px] text-white font-semibold px-3 py-0.5 rounded-full bg-[#1A1A1A] shrink-0 shadow-[0_2px_6px_rgba(0,0,0,0.12)]">
+            Confirmed Anchor
           </span>
         </div>
       )}
 
       {/* Dual-Signal Trendline Chart */}
       {showChart && (
-        <div className="px-5 pt-4 pb-2 border-b border-slate-100 bg-slate-50/40">
-          <div className="flex items-center justify-between text-xs text-slate-500 mb-2">
-            <span className="font-semibold text-slate-700">Dual-Signal Telemetry Trend (Liters/Day)</span>
-            <div className="flex items-center gap-4 text-[11px]">
-              <span className="flex items-center gap-1 text-primary font-semibold">
-                <span className="w-2.5 h-0.5 bg-[#2F6FED]" /> Daytime Activity (~6am-11pm)
+        <div className="px-4 sm:px-6 pt-4 pb-3 border-b border-[#DCDCDC] bg-[#FAFAFA]">
+          <div className="flex flex-wrap items-center justify-between text-xs text-[#8A8A8A] mb-2 gap-2">
+            <span className="font-semibold text-[#1A1A1A]">Dual-Signal Telemetry Trend (Liters/Day)</span>
+            <div className="flex flex-wrap items-center gap-3 text-[11px]">
+              <span className="flex items-center gap-1.5 text-[#1A1A1A] font-semibold">
+                <span className="w-2.5 h-0.5 bg-[#1A1A1A]" /> Daytime Activity
               </span>
-              <span className="flex items-center gap-1 text-slate-600 font-semibold">
-                <span className="w-2.5 h-0.5 bg-[#64748b]" /> Overnight Minimum Flow (~11pm-6am)
+              <span className="flex items-center gap-1.5 text-[#6B6B6B] font-semibold">
+                <span className="w-2.5 h-0.5 bg-[#8A8A8A] border-dashed" /> Overnight Minimum Flow
               </span>
-              <span className="flex items-center gap-1 text-slate-400">
-                <span className="w-2.5 h-0.5 bg-[#94A3B8] border-dashed" /> 14-Day Baseline
+              <span className="flex items-center gap-1.5 text-[#8A8A8A]">
+                <span className="w-2.5 h-0.5 bg-[#DCDCDC]" /> 14-Day Baseline
               </span>
             </div>
           </div>
           <div className="w-full h-44">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData} margin={{ top: 5, right: 15, left: -20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-                <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#64748B' }} stroke="#CBD5E1" />
-                <YAxis tick={{ fontSize: 10, fill: '#64748B' }} stroke="#CBD5E1" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#EBEBEB" />
+                <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#8A8A8A' }} stroke="#DCDCDC" />
+                <YAxis tick={{ fontSize: 10, fill: '#8A8A8A' }} stroke="#DCDCDC" />
                 <Tooltip
                   content={({ active, payload }) => {
                     if (active && payload && payload.length) {
                       const data = payload[0].payload;
                       return (
-                        <div className="bg-white p-2.5 rounded-xl shadow-lg border border-slate-200 text-xs">
-                          <p className="font-bold text-slate-900 mb-1">{data.fullDate}</p>
-                          <p className="text-primary font-semibold">Daytime: {data.daytime} L</p>
-                          <p className="text-slate-600 font-semibold">Overnight (Raw): {data.overnight} L</p>
-                          {declaredLiters > 0 && (
-                            <p className="text-emerald-700 font-semibold">Overnight (Effective): {data.effectiveOvernight} L (-{declaredLiters} L)</p>
-                          )}
-                          <p className="text-slate-800 font-bold border-t border-slate-100 pt-1 mt-1">Total: {data.total} L (Baseline: {data.baseline} L)</p>
+                        <div className="bg-[#FAFAFA] p-2.5 rounded-2xl shadow-lg border border-[#DCDCDC] text-xs">
+                          <p className="font-bold text-[#1A1A1A] mb-1">{data.fullDate}</p>
+                          <p className="text-[#1A1A1A] font-semibold">Daytime: {data.daytime} L</p>
+                          <p className="text-[#6B6B6B] font-semibold">Overnight: {data.overnight} L</p>
+                          <p className="text-[#1A1A1A] font-bold border-t border-[#DCDCDC] pt-1 mt-1">Total: {data.total} L (Baseline: {data.baseline} L)</p>
                         </div>
                       );
                     }
                     return null;
                   }}
                 />
-                <Line type="monotone" dataKey="daytime" name="Daytime" stroke="#2F6FED" strokeWidth={2.2} dot={{ r: 2 }} />
-                <Line type="monotone" dataKey="overnight" name="Overnight" stroke="#64748b" strokeWidth={2.2} dot={{ r: 2.5 }} />
-                <Line type="monotone" dataKey="baseline" name="Baseline" stroke="#94A3B8" strokeDasharray="3 3" strokeWidth={1.5} dot={false} />
+                <Line type="monotone" dataKey="daytime" name="Daytime" stroke="#1A1A1A" strokeWidth={2} dot={{ r: 2 }} />
+                <Line type="monotone" dataKey="overnight" name="Overnight" stroke="#8A8A8A" strokeWidth={2} strokeDasharray="3 3" dot={{ r: 2.5 }} />
+                <Line type="monotone" dataKey="baseline" name="Baseline" stroke="#DCDCDC" strokeWidth={1.5} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -210,21 +207,21 @@ export default function TelemetryTable({ onOpenDetails }: TelemetryTableProps) {
 
       {/* Table */}
       <div className="overflow-x-auto w-full">
-        <table className="w-full min-w-[760px] text-left border-collapse text-xs">
+        <table className="w-full text-left border-collapse text-xs">
           <thead>
-            <tr className="bg-slate-50 text-slate-600 font-semibold text-xs border-b border-slate-200">
-              <th className="py-3 px-5">Date</th>
-              <th className="py-3 px-4">Daytime</th>
-              <th className="py-3 px-4">Overnight Flow</th>
-              <th className="py-3 px-4">Hourly Flow Shape (1am-5am)</th>
-              <th className="py-3 px-4">Total (L)</th>
-              <th className="py-3 px-4">14-Day Baseline</th>
-              <th className="py-3 px-4">Peer Avg</th>
-              <th className="py-3 px-4">Status</th>
-              <th className="py-3 px-5 text-right">Action</th>
+            <tr className="bg-[#EDEDED] text-[#1A1A1A] font-semibold text-xs border-b border-[#DCDCDC]">
+              <th className="py-3 px-4 sm:px-5">Date</th>
+              <th className="py-3 px-3 sm:px-4">Daytime</th>
+              <th className="py-3 px-3 sm:px-4">Overnight Flow</th>
+              <th className="py-3 px-3 sm:px-4">Hourly Flow Shape (1am-5am)</th>
+              <th className="py-3 px-3 sm:px-4">Total (L)</th>
+              <th className="py-3 px-3 sm:px-4">14-Day Baseline</th>
+              <th className="py-3 px-3 sm:px-4">Peer Avg</th>
+              <th className="py-3 px-3 sm:px-4">Status</th>
+              <th className="py-3 px-4 sm:px-5 text-right">Action</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 text-slate-700 font-medium">
+          <tbody className="divide-y divide-[#DCDCDC] text-[#1A1A1A] font-medium">
             {recentDays.map((day) => {
               const isAnomalous = day.is_anomalous;
               const isElevatedUnflagged = day.is_elevated_unflagged;
@@ -234,58 +231,54 @@ export default function TelemetryTable({ onOpenDetails }: TelemetryTableProps) {
               return (
                 <tr
                   key={day.date}
-                  className={`hover:bg-slate-50/70 transition-colors ${
-                    isAnomalous ? 'bg-red-50/40' : isElevatedUnflagged ? 'bg-amber-50/30' : isResetDate ? 'bg-blue-50/30' : ''
+                  onClick={() => setSelectedDayDetail(day)}
+                  className={`hover:bg-[#EBEBEB] transition-colors cursor-pointer ${
+                    isAnomalous ? 'bg-[#E5E5E5]/50' : ''
                   }`}
                 >
                   {/* Date */}
-                  <td className="py-3.5 px-5 font-semibold text-slate-900 whitespace-nowrap">
-                    <div className="flex items-center gap-2">
+                  <td className="py-3.5 px-4 sm:px-5 font-semibold text-[#1A1A1A]">
+                    <div className="flex items-center gap-1.5">
                       {isAnomalous ? (
-                        <span className="material-symbols-outlined text-[16px] text-error">
-                          warning
+                        <span className="material-symbols-outlined text-[16px] text-[#1A1A1A]">
+                          water_damage
                         </span>
                       ) : isElevatedUnflagged ? (
-                        <span className="material-symbols-outlined text-[16px] text-amber-600">
-                          monitoring
+                        <span className="material-symbols-outlined text-[16px] text-[#1A1A1A]">
+                          change_history
                         </span>
                       ) : null}
                       <span>{day.date}</span>
                       {isResetDate && (
-                        <span className="px-1.5 py-0.5 rounded text-[10px] bg-blue-100 text-primary font-bold">
-                          Reset Point
-                        </span>
-                      )}
-                      {day.is_simulated && (
-                        <span className="px-1.5 py-0.2 rounded text-[10px] bg-amber-100 text-amber-800 font-semibold">
-                          Simulated
+                        <span className="px-2 py-0.5 rounded-full text-[10px] bg-[#1A1A1A] text-white font-bold">
+                          Anchor
                         </span>
                       )}
                     </div>
                   </td>
 
                   {/* Daytime */}
-                  <td className="py-3.5 px-4 font-semibold text-slate-800">
+                  <td className="py-3.5 px-3 sm:px-4 font-semibold text-[#1A1A1A]">
                     {day.daytimeLiters} L
                   </td>
 
                   {/* Overnight Flow */}
-                  <td className="py-3.5 px-4">
+                  <td className="py-3.5 px-3 sm:px-4">
                     <div className="flex flex-col">
-                      <span className={`font-semibold ${day.overnightLiters > 25 ? 'text-purple-900 font-bold' : 'text-purple-700'}`}>
+                      <span className={`font-semibold ${isAnomalous ? 'text-[#1A1A1A] font-extrabold' : 'text-[#1A1A1A]'}`}>
                         {day.overnightLiters} L
                       </span>
                       {declaredLiters > 0 && (
-                        <span className="text-[10px] text-slate-400">
+                        <span className="text-[10px] text-[#8A8A8A]">
                           eff: {day.effectiveOvernightLiters ?? Math.max(0, day.overnightLiters - declaredLiters)} L (-{declaredLiters})
                         </span>
                       )}
                     </div>
                   </td>
 
-                  {/* Hourly Flow Shape: 5 Buckets (1am, 2am, 3am, 4am, 5am) */}
-                  <td className="py-3.5 px-4">
-                    <div className="flex items-center gap-1">
+                  {/* Hourly Flow Shape: 5 Buckets */}
+                  <td className="py-3.5 px-3 sm:px-4">
+                    <div className="flex items-center gap-1 flex-wrap">
                       {buckets.map((b, idx) => {
                         const isElev = b >= 4;
                         return (
@@ -294,73 +287,72 @@ export default function TelemetryTable({ onOpenDetails }: TelemetryTableProps) {
                             title={`${idx + 1}am: ${b} L`}
                             className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-bold ${
                               isElev
-                                ? day.flow_shape === 'BURST'
-                                  ? 'bg-amber-100 text-amber-800'
-                                  : 'bg-red-100 text-error'
-                                : 'bg-slate-100 text-slate-600'
+                                ? day.flow_shape === 'CONTINUOUS'
+                                  ? 'bg-[#1A1A1A] text-white'
+                                  : 'bg-[#E0E0E0] text-[#1A1A1A]'
+                                : 'bg-[#E0E0E0] text-[#6B6B6B]'
                             }`}
                           >
                             {b}L
                           </span>
                         );
                       })}
-                      {day.flow_shape === 'BURST' ? (
-                        <span className="ml-1 px-1.5 py-0.5 rounded text-[10px] bg-amber-50 text-amber-800 font-semibold border border-amber-200">
-                          Burst
-                        </span>
-                      ) : day.flow_shape === 'CONTINUOUS' ? (
-                        <span className="ml-1 px-1.5 py-0.5 rounded text-[10px] bg-red-50 text-error font-semibold border border-red-200">
+                      {day.flow_shape === 'CONTINUOUS' ? (
+                        <span className="ml-1 px-2 py-0.5 rounded-full text-[10px] bg-[#1A1A1A] text-white font-bold">
                           Trickle
+                        </span>
+                      ) : day.flow_shape === 'BURST' ? (
+                        <span className="ml-1 px-2 py-0.5 rounded-full text-[10px] bg-[#E0E0E0] text-[#1A1A1A] font-semibold border border-[#DCDCDC]">
+                          Burst
                         </span>
                       ) : null}
                     </div>
                   </td>
 
                   {/* Total Liters */}
-                  <td className="py-3.5 px-4 font-bold text-slate-900">
+                  <td className="py-3.5 px-3 sm:px-4 font-bold text-[#1A1A1A]">
                     {day.liters} L
                   </td>
 
                   {/* 14d rolling avg */}
-                  <td className="py-3.5 px-4 text-slate-500">
+                  <td className="py-3.5 px-3 sm:px-4 text-[#8A8A8A]">
                     {Math.round(day.rolling_avg)} L
                   </td>
 
                   {/* Peer avg */}
-                  <td className="py-3.5 px-4 text-slate-500">
+                  <td className="py-3.5 px-3 sm:px-4 text-[#8A8A8A]">
                     {day.peer_avg} L
                   </td>
 
                   {/* Status Pill */}
-                  <td className="py-3.5 px-4 whitespace-nowrap">
+                  <td className="py-3.5 px-3 sm:px-4">
                     {isAnomalous ? (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-red-100 text-error text-[11px] font-bold">
-                        <span className="w-1.5 h-1.5 rounded-full bg-error animate-ping" />
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1A1A1A] text-white text-[11px] font-bold shadow-[0_2px_6px_rgba(0,0,0,0.12)]">
+                        <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
                         Leak Flagged
                       </span>
                     ) : day.is_overnight_burst ? (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[11px] font-semibold border border-slate-200">
-                        <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
-                        Burst Activity
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E0E0E0] text-[#6B6B6B] text-[11px] font-medium border border-[#DCDCDC]">
+                        Burst
                       </span>
                     ) : isElevatedUnflagged ? (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[11px] font-semibold">
-                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#E0E0E0] text-[#1A1A1A] text-[11px] font-medium border border-[#DCDCDC]">
+                        <span className="material-symbols-outlined text-[13px]">change_history</span>
                         Monitoring
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-semibold">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E0E0E0] text-[#1A1A1A] text-[11px] font-medium border border-[#DCDCDC]">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#1A1A1A]" />
                         Normal
                       </span>
                     )}
                   </td>
 
                   {/* Action */}
-                  <td className="py-3.5 px-5 text-right">
+                  <td className="py-3.5 px-4 sm:px-5 text-right">
                     <button
                       onClick={() => setSelectedDayDetail(day)}
-                      className="text-primary hover:text-blue-800 font-semibold cursor-pointer text-xs"
+                      className="text-[#1A1A1A] hover:underline font-semibold cursor-pointer text-xs"
                     >
                       Details
                     </button>
@@ -374,17 +366,17 @@ export default function TelemetryTable({ onOpenDetails }: TelemetryTableProps) {
 
       {/* Quick Modal to Edit Scheduled Overnight Liters */}
       {isEditingScheduled && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-sm overflow-hidden p-5">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <h3 className="text-sm font-bold text-slate-900">Scheduled Overnight Usage</h3>
-              <button onClick={() => setIsEditingScheduled(false)} className="text-slate-400 hover:text-slate-600">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1A1A1A]/40 backdrop-blur-xs p-4 animate-in fade-in duration-200">
+          <div className="bg-[#FAFAFA] rounded-2xl shadow-xl border border-[#DCDCDC] w-full max-w-sm overflow-hidden p-5">
+            <div className="flex items-center justify-between pb-3 border-b border-[#DCDCDC]">
+              <h3 className="text-sm font-bold text-[#1A1A1A]">Scheduled Overnight Usage</h3>
+              <button onClick={() => setIsEditingScheduled(false)} className="text-[#8A8A8A] hover:text-[#1A1A1A]">
                 <span className="material-symbols-outlined text-[18px]">close</span>
               </button>
             </div>
             <form onSubmit={handleSaveScheduled} className="mt-4 space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-[#1A1A1A] mb-1">
                   Expected Overnight Liters (L/night)
                 </label>
                 <input
@@ -394,23 +386,23 @@ export default function TelemetryTable({ onOpenDetails }: TelemetryTableProps) {
                   step="1"
                   value={tempScheduled}
                   onChange={(e) => setTempScheduled(e.target.value)}
-                  className="w-full text-sm font-bold bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-container/20"
+                  className="w-full text-sm font-bold bg-white border border-[#DCDCDC] rounded-full px-4 py-2 text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/20"
                 />
-                <p className="text-xs text-slate-500 mt-1.5">
-                  if you have a sprinkler, water softener, or anything that runs automatically overnight, enter roughly how much it uses.
+                <p className="text-xs text-[#8A8A8A] mt-1.5">
+                  Enter baseline for sprinkler, water softener, or automatic appliances running overnight.
                 </p>
               </div>
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#DCDCDC]">
                 <button
                   type="button"
                   onClick={() => setIsEditingScheduled(false)}
-                  className="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg"
+                  className="px-4 py-1.5 text-xs font-semibold text-[#6B6B6B] hover:text-[#1A1A1A] rounded-full"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-3.5 py-1.5 text-xs font-bold text-white bg-primary-container hover:bg-primary rounded-lg shadow-sm"
+                  className="px-4 py-1.5 text-xs font-bold text-white bg-[#1A1A1A] hover:bg-black rounded-full shadow-[0_2px_6px_rgba(0,0,0,0.12)] cursor-pointer"
                 >
                   Save Allowance
                 </button>
@@ -422,29 +414,27 @@ export default function TelemetryTable({ onOpenDetails }: TelemetryTableProps) {
 
       {/* Day Details Modal */}
       {selectedDayDetail && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-md overflow-hidden p-5">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1A1A1A]/40 backdrop-blur-xs p-4 animate-in fade-in duration-200">
+          <div className="bg-[#FAFAFA] rounded-2xl shadow-xl border border-[#DCDCDC] w-full max-w-md overflow-hidden p-5">
+            <div className="flex items-center justify-between pb-3 border-b border-[#DCDCDC]">
               <div>
-                <h3 className="text-base font-bold text-slate-900">Day Details: {selectedDayDetail.date}</h3>
-                <span className="text-xs text-slate-500">Dual-Signal Telemetry &amp; 5-Hourly Flow Breakdown</span>
+                <h3 className="text-base font-bold text-[#1A1A1A]">Day Details: {selectedDayDetail.date}</h3>
+                <span className="text-xs text-[#8A8A8A]">Dual-Signal Telemetry &amp; 5-Hourly Flow Breakdown</span>
               </div>
-              <button onClick={() => setSelectedDayDetail(null)} className="text-slate-400 hover:text-slate-600">
+              <button onClick={() => setSelectedDayDetail(null)} className="text-[#8A8A8A] hover:text-[#1A1A1A]">
                 <span className="material-symbols-outlined text-[20px]">close</span>
               </button>
             </div>
 
             <div className="mt-4 space-y-4">
               {/* Overnight Hourly Buckets */}
-              <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+              <div className="bg-[#EDEDED] p-3.5 rounded-2xl border border-[#DCDCDC]">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold text-slate-700">Overnight Hourly Buckets</span>
-                  <span className={`text-[11px] font-bold px-2 py-0.5 rounded ${
+                  <span className="text-xs font-bold text-[#1A1A1A]">Overnight Hourly Buckets</span>
+                  <span className={`text-[11px] font-bold px-3 py-0.5 rounded-full ${
                     selectedDayDetail.flow_shape === 'CONTINUOUS'
-                      ? 'bg-red-100 text-error'
-                      : selectedDayDetail.flow_shape === 'BURST'
-                      ? 'bg-amber-100 text-amber-800'
-                      : 'bg-emerald-100 text-emerald-800'
+                      ? 'bg-[#1A1A1A] text-white'
+                      : 'bg-[#E0E0E0] text-[#1A1A1A]'
                   }`}>
                     {selectedDayDetail.flow_shape === 'CONTINUOUS'
                       ? 'Continuous Trickle Signature'
@@ -456,48 +446,39 @@ export default function TelemetryTable({ onOpenDetails }: TelemetryTableProps) {
 
                 <div className="grid grid-cols-5 gap-2 text-center">
                   {(selectedDayDetail.overnightBuckets || [1, 1, 1, 1, 1]).map((b: number, i: number) => (
-                    <div key={i} className="bg-white p-2 rounded-lg border border-slate-200/80 flex flex-col">
-                      <span className="text-[10px] text-slate-400 font-semibold">{i + 1} AM</span>
-                      <span className={`text-sm font-bold mt-0.5 ${b >= 4 ? 'text-primary' : 'text-slate-800'}`}>
+                    <div key={i} className="bg-[#FAFAFA] p-2 rounded-xl border border-[#DCDCDC] flex flex-col">
+                      <span className="text-[10px] text-[#8A8A8A] font-semibold">{i + 1} AM</span>
+                      <span className="text-sm font-bold mt-0.5 text-[#1A1A1A]">
                         {b} L
                       </span>
                     </div>
                   ))}
                 </div>
 
-                <p className="text-[11px] text-slate-500 mt-2">
+                <p className="text-[11px] text-[#8A8A8A] mt-2">
                   {selectedDayDetail.flow_shape === 'CONTINUOUS'
-                    ? 'Elevated consistently across 4–5 buckets — consistent with toilet flapper or pinhole pipe leak.'
-                    : selectedDayDetail.flow_shape === 'BURST'
-                    ? 'Only 1–2 buckets elevated and remaining near-zero — consistent with guest or late-night bathroom use.'
-                    : 'Normal near-zero overnight baseline flow.'}
+                    ? 'Elevated consistently across buckets — signature of continuous leak.'
+                    : 'Unattended overnight flow pattern within standard boundaries.'}
                 </p>
               </div>
 
               {/* Volume Summary */}
               <div className="grid grid-cols-2 gap-3 text-xs">
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
-                  <span className="text-slate-500 block">Daytime Usage</span>
-                  <span className="text-base font-bold text-slate-900 mt-0.5">{selectedDayDetail.daytimeLiters} L</span>
+                <div className="p-3 rounded-2xl bg-[#EDEDED] border border-[#DCDCDC]">
+                  <span className="text-[#8A8A8A] block">Daytime Usage</span>
+                  <span className="text-base font-bold text-[#1A1A1A] mt-0.5">{selectedDayDetail.daytimeLiters} L</span>
                 </div>
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
-                  <span className="text-slate-500 block">Total Overnight</span>
-                  <span className="text-base font-bold text-slate-900 mt-0.5">{selectedDayDetail.overnightLiters} L</span>
+                <div className="p-3 rounded-2xl bg-[#EDEDED] border border-[#DCDCDC]">
+                  <span className="text-[#8A8A8A] block">Total Overnight</span>
+                  <span className="text-base font-bold text-[#1A1A1A] mt-0.5">{selectedDayDetail.overnightLiters} L</span>
                 </div>
               </div>
-
-              {/* Scheduled appliance note */}
-              {declaredLiters > 0 && (
-                <div className="p-2.5 rounded-lg bg-blue-50/70 border border-blue-200/60 text-xs text-blue-900">
-                  Scheduled allowance: <strong>{declaredLiters} L/night</strong> deducted → Effective overnight flow evaluated: <strong>{selectedDayDetail.effectiveOvernightLiters} L</strong>.
-                </div>
-              )}
             </div>
 
-            <div className="mt-4 pt-3 border-t border-slate-100 flex justify-end">
+            <div className="mt-4 pt-3 border-t border-[#DCDCDC] flex justify-end">
               <button
                 onClick={() => setSelectedDayDetail(null)}
-                className="px-4 py-2 text-xs font-bold text-white bg-primary-container hover:bg-primary rounded-lg"
+                className="px-4 py-2 text-xs font-bold text-white bg-[#1A1A1A] hover:bg-black rounded-full shadow-[0_2px_6px_rgba(0,0,0,0.12)] cursor-pointer"
               >
                 Close
               </button>

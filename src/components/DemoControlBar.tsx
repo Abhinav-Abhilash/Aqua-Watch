@@ -11,82 +11,77 @@ export default function DemoControlBar() {
     resetDemoData,
     isSimulatedLeakActive,
     setSelectedHouseholdId,
-    households
   } = useAqua();
 
   return (
-    <div className="bg-slate-900 text-white rounded-lg p-4 shadow-none border border-slate-700">
+    <div className="bg-[#FAFAFA] text-[#1A1A1A] rounded-2xl p-4 sm:p-5 border border-[#DCDCDC]">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         
         {/* Left: Pitch Demo Banner Info */}
-        <div className="flex items-start space-x-3">
-          <div className="w-8 h-8 rounded-md bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+        <div className="flex items-start gap-3">
+          <div className="w-8 h-8 rounded-full bg-[#E0E0E0] text-[#1A1A1A] border border-[#DCDCDC] flex items-center justify-center shrink-0 mt-0.5">
             <Sparkles className="w-4 h-4" />
           </div>
           <div>
-            <div className="flex items-center space-x-2">
-              <span className="text-xs font-semibold text-amber-400">Live pitch demo</span>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-bold text-[#1A1A1A]">Pitch Demo Controls</span>
               {isSimulatedLeakActive ? (
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/30 text-rose-300 border border-rose-500/50">
-                  <AlertTriangle className="w-3 h-3 mr-1" />
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#E0E0E0] text-[#1A1A1A] border border-[#DCDCDC]">
+                  <AlertTriangle className="w-3 h-3 mr-1 text-[#1A1A1A]" />
                   Leak Injected (+48% across 4 days)
                 </span>
               ) : (
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                  <CheckCircle className="w-3 h-3 mr-1" />
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-[#E0E0E0] text-[#1A1A1A] border border-[#DCDCDC]">
+                  <CheckCircle className="w-3 h-3 mr-1 text-[#1A1A1A]" />
                   Clean Baseline
                 </span>
               )}
             </div>
-            <p className="text-xs text-slate-300 mt-1">
-              Target: <strong className="text-white">{selectedHousehold.name}</strong>. Click below to inject a multi-day continuous leak and observe instant detection without waiting for real time.
+            <p className="text-xs text-[#6B6B6B] mt-1">
+              Target: <strong className="text-[#1A1A1A]">{selectedHousehold.name}</strong>. Click below to inject a multi-day continuous leak and observe instant anomaly detection.
             </p>
           </div>
         </div>
 
         {/* Right: Pitch Action Buttons */}
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
           <button
             onClick={() => simulateLeak()}
             id="simulate-leak-btn"
-            className={`inline-flex items-center space-x-2 px-4 py-2.5 rounded-lg text-xs font-bold shadow-md transition transform active:scale-95 ${
-              isSimulatedLeakActive
-                ? 'bg-amber-500 text-slate-950 hover:bg-amber-400 shadow-amber-500/20 ring-2 ring-amber-300'
-                : 'bg-rose-600 text-white hover:bg-rose-500 shadow-rose-600/30'
-            }`}
+            className="inline-flex items-center space-x-2 px-4 py-2 rounded-full text-xs font-bold transition transform active:scale-95 cursor-pointer bg-[#1A1A1A] text-white hover:bg-black shadow-[0_2px_6px_rgba(0,0,0,0.12)]"
           >
-            <Zap className={`w-4 h-4 ${isSimulatedLeakActive ? 'fill-current' : ''}`} />
+            <Zap className={`w-3.5 h-3.5 ${isSimulatedLeakActive ? 'fill-current' : ''}`} />
             <span>{isSimulatedLeakActive ? 'Re-inject leak spikes' : 'Simulate leak'}</span>
           </button>
 
           <button
             onClick={resetDemoData}
             id="reset-demo-btn"
-            className="inline-flex items-center space-x-1.5 px-3.5 py-2.5 rounded-lg text-xs font-semibold bg-slate-700 hover:bg-slate-600 text-slate-200 border border-slate-600 transition active:scale-95"
+            className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-full text-xs font-semibold bg-[#E0E0E0] hover:bg-[#D5D5D5] text-[#6B6B6B] hover:text-[#1A1A1A] border border-[#DCDCDC] transition active:scale-95 cursor-pointer"
           >
-            <RotateCcw className="w-3.5 h-3.5 text-slate-400" />
+            <RotateCcw className="w-3.5 h-3.5 text-[#6B6B6B]" />
             <span>Reset Demo Data</span>
           </button>
 
-          {/* Quick presets for judges */}
-          <div className="hidden lg:flex items-center space-x-1.5 pl-2 border-l border-slate-700 text-xs">
-            <span className="text-slate-400 text-[11px]">Presets:</span>
+          {/* Quick presets */}
+          <div className="hidden lg:flex items-center space-x-1.5 pl-2 border-l border-[#DCDCDC] text-xs">
+            <span className="text-[#8A8A8A] text-[11px]">Presets:</span>
             <button
               onClick={() => setSelectedHouseholdId('h-henderson')}
-              className={`px-2 py-1 rounded text-[11px] font-medium transition ${
+              className={`px-3 py-1 rounded-full text-[11px] font-medium transition cursor-pointer ${
                 selectedHousehold.id === 'h-henderson'
-                  ? 'bg-brand-600 text-white'
-                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                  ? 'bg-[#1A1A1A] text-white shadow-[0_2px_6px_rgba(0,0,0,0.12)]'
+                  : 'bg-[#E0E0E0] text-[#6B6B6B] hover:text-[#1A1A1A]'
               }`}
             >
               Henderson (Pitch)
             </button>
             <button
               onClick={() => setSelectedHouseholdId('h-miller')}
-              className={`px-2 py-1 rounded text-[11px] font-medium transition ${
+              className={`px-3 py-1 rounded-full text-[11px] font-medium transition cursor-pointer ${
                 selectedHousehold.id === 'h-miller'
-                  ? 'bg-brand-600 text-white'
-                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                  ? 'bg-[#1A1A1A] text-white shadow-[0_2px_6px_rgba(0,0,0,0.12)]'
+                  : 'bg-[#E0E0E0] text-[#6B6B6B] hover:text-[#1A1A1A]'
               }`}
             >
               Miller (Pre-seeded Leak)

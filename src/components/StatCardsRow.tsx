@@ -18,68 +18,70 @@ export default function StatCardsRow() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
       
-      {/* Primary Card: Today's Usage (Has subtle elevation and clear focal hierarchy) */}
-      <div className="bg-white border border-slate-200 rounded-lg p-4 sm:p-5 shadow-sm flex flex-col justify-between">
-        <div className="flex items-center justify-between text-slate-600">
-          <span className="text-xs font-medium text-slate-600">Today&apos;s usage</span>
-          <span className="text-[11px] text-slate-400">Current</span>
+      {/* Primary Card: Today's Usage */}
+      <div className="bg-[#FAFAFA] border border-[#DCDCDC] rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
+        <div className="flex items-center justify-between text-[#6B6B6B]">
+          <span className="text-xs font-medium text-[#6B6B6B]">Today&apos;s usage</span>
+          <span className="text-[11px] text-[#8A8A8A] px-2 py-0.5 rounded-full bg-[#E0E0E0]/60">Current</span>
         </div>
         <div className="my-2.5">
-          <div className="text-3xl font-bold text-slate-900 tracking-tight">
+          <div className="text-3xl font-bold text-[#1A1A1A] tracking-tight">
             {todayLiters}{' '}
-            <span className="text-base text-slate-400 font-normal">L</span>
+            <span className="text-base text-[#8A8A8A] font-normal">L</span>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 text-xs text-slate-500">
-          <span className={`inline-flex items-center font-medium ${isDiffPositive ? 'text-amber-700' : 'text-emerald-700'}`}>
+        <div className="flex items-center gap-1.5 text-xs text-[#6B6B6B]">
+          <span className="inline-flex items-center gap-0.5 font-semibold text-[#1A1A1A]">
+            <span className="material-symbols-outlined text-[13px]">
+              {isDiffPositive ? 'north' : 'south'}
+            </span>
             {isDiffPositive ? `+${diffFromRolling} L` : `${diffFromRolling} L`}
           </span>
           <span>vs your usual amount</span>
         </div>
       </div>
 
-      {/* Secondary Card 1: Your Usual Amount (Flat border, no decorative icon box) */}
-      <div className="bg-white border border-slate-200/80 rounded-lg p-4 sm:p-5 shadow-none flex flex-col justify-between">
-        <div className="flex items-center justify-between text-slate-500">
-          <span className="text-xs font-medium text-slate-600">Your usual amount</span>
-          <span className="text-[11px] text-slate-400">Past 14 days</span>
+      {/* Secondary Card 1: Your Usual Amount */}
+      <div className="bg-[#FAFAFA] border border-[#DCDCDC] rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
+        <div className="flex items-center justify-between text-[#6B6B6B]">
+          <span className="text-xs font-medium text-[#6B6B6B]">Your usual amount</span>
+          <span className="text-[11px] text-[#8A8A8A] px-2 py-0.5 rounded-full bg-[#E0E0E0]/60">Past 14 days</span>
         </div>
         <div className="my-2.5 flex items-baseline gap-1.5">
-          <div className="text-3xl font-bold text-slate-900 tracking-tight">
+          <div className="text-3xl font-bold text-[#1A1A1A] tracking-tight">
             {avg14dLiters}{' '}
-            <span className="text-base text-slate-400 font-normal">L</span>
+            <span className="text-base text-[#8A8A8A] font-normal">L</span>
           </div>
-          <span className="text-xs text-slate-400 font-normal">/ day</span>
+          <span className="text-xs text-[#8A8A8A] font-normal">/ day</span>
         </div>
-        <div className="flex items-center justify-between text-xs text-slate-500">
+        <div className="flex items-center justify-between text-xs text-[#6B6B6B]">
           <span>~{Math.round(avg14dLiters / (selectedHousehold.occupants || 1))} L per person</span>
-          <span className="text-slate-400">{selectedHousehold.occupants} occupants</span>
+          <span className="text-[#8A8A8A]">{selectedHousehold.occupants} occupants</span>
         </div>
       </div>
 
-      {/* Secondary Card 2: Compared to Neighbors (Flat border, no decorative icon box) */}
-      <div className="bg-white border border-slate-200/80 rounded-lg p-4 sm:p-5 shadow-none flex flex-col justify-between sm:col-span-2 lg:col-span-1">
-        <div className="flex items-center justify-between text-slate-500">
-          <span className="text-xs font-medium text-slate-600">Compared to neighbors</span>
-          <span className="text-[11px] text-slate-400">{selectedHousehold.locality}</span>
+      {/* Secondary Card 2: Compared to Neighbors */}
+      <div className="bg-[#FAFAFA] border border-[#DCDCDC] rounded-2xl p-4 sm:p-5 flex flex-col justify-between sm:col-span-2 lg:col-span-1">
+        <div className="flex items-center justify-between text-[#6B6B6B]">
+          <span className="text-xs font-medium text-[#6B6B6B]">Compared to neighbors</span>
+          <span className="text-[11px] text-[#8A8A8A] px-2 py-0.5 rounded-full bg-[#E0E0E0]/60">{selectedHousehold.locality}</span>
         </div>
         <div className="my-2.5 flex items-baseline gap-2">
-          <div className={`text-3xl font-bold tracking-tight ${isPeerAbove ? 'text-amber-700' : 'text-slate-900'}`}>
+          <div className="text-3xl font-bold tracking-tight text-[#1A1A1A]">
             {peerDiffPercent > 0 ? `+${peerDiffPercent}%` : `${peerDiffPercent}%`}
           </div>
           <span
             id="peer-stat-pill"
-            className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-              isPeerAbove
-                ? 'bg-amber-50 text-amber-800'
-                : 'bg-emerald-50 text-emerald-800'
-            }`}
+            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#E0E0E0] text-[#1A1A1A] border border-[#DCDCDC]"
           >
+            <span className="material-symbols-outlined text-[13px]">
+              {isPeerAbove ? 'north' : 'south'}
+            </span>
             {isPeerAbove ? `${peerDiffPercent}% above peers` : `${Math.abs(peerDiffPercent)}% below peers`}
           </span>
         </div>
-        <div className="text-xs text-slate-500 flex items-center justify-between">
-          <span>Neighbors average: <strong className="text-slate-700 font-medium">{peerAvg} L/day</strong></span>
+        <div className="text-xs text-[#6B6B6B] flex items-center justify-between">
+          <span>Neighbors average: <strong className="text-[#1A1A1A] font-semibold">{peerAvg} L/day</strong></span>
         </div>
       </div>
 

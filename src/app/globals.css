@@ -9,8 +9,8 @@
   html, body {
     margin: 0;
     padding: 0;
-    background-color: #f9f9ff;
-    color: #111c2d;
+    background-color: #EDEDED;
+    color: #1A1A1A;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
 }
@@ -38,9 +38,29 @@
   50% { opacity: 0.85; transform: scale(1.04); }
 }
 
+@keyframes waterHighlightFlow {
+  0% { stroke-dashoffset: 44; }
+  100% { stroke-dashoffset: 0; }
+}
+
 .flow-line-active {
   stroke-dasharray: 8 6;
   animation: pipeFlowNormal 1.2s linear infinite;
+}
+
+.flow-line-fast {
+  stroke-dasharray: 10 5;
+  animation: pipeFlowNormal 0.65s linear infinite;
+}
+
+.water-flow-highlight {
+  stroke-dasharray: 18 10 6 10;
+  animation: waterHighlightFlow 1.3s linear infinite;
+}
+
+.water-flow-highlight-fast {
+  stroke-dasharray: 18 10 6 10;
+  animation: waterHighlightFlow 0.7s linear infinite;
 }
 
 .drip-drop-1 {
@@ -67,15 +87,16 @@
   line-height: 1;
 }
 
-/* Scrollbar styling */
+/* Scrollbar styling - pure monochrome */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f0f3ff;
+  background: #EDEDED;
 }
 ::-webkit-scrollbar-thumb {
-  background: #c2c6d7;
+  background: #B0B0B0;
   border-radius: 9999px;
 }
+

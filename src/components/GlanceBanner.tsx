@@ -5,7 +5,7 @@ import { useAqua } from '@/context/AquaContext';
 import StatusFace from '@/components/StatusFace';
 
 export default function GlanceBanner() {
-  const { leakStatus, simulateLeak, resetDemoData, isSimulatedLeakActive, selectedHousehold, resetHouseholdBaseline } = useAqua();
+  const { leakStatus, selectedHousehold, resetHouseholdBaseline } = useAqua();
 
   const isLeak = leakStatus.severity === 'LEAK_DETECTED';
   const isHighUsage = leakStatus.severity === 'HIGH_USAGE';
@@ -13,42 +13,42 @@ export default function GlanceBanner() {
   return (
     <div
       id="glance-banner"
-      className={`border rounded-lg p-4 sm:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-all duration-200 ${
+      className={`rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-all duration-200 bg-[#FAFAFA] border border-[#DCDCDC] ${
         isLeak
-          ? 'bg-red-50/40 border-red-200 shadow-sm'
-          : isHighUsage
-          ? 'bg-amber-50/40 border-amber-200 shadow-sm'
-          : 'bg-white border-slate-200 shadow-xs'
+          ? 'border-l-4 border-l-[#B8564A]'
+          : ''
       }`}
     >
       <div className="flex items-center gap-3.5 sm:gap-4.5">
-        {/* Prominent Level 1 Status Face Icon */}
+        {/* Status Indicator Icon (circle for normal, triangle for high usage, red water drop for leak) */}
         <StatusFace severity={leakStatus.severity} />
 
-        {/* Level 1 Status Sentence - LARGEST TEXT ON PAGE */}
+        {/* Status Sentence - LARGEST TEXT ON PAGE */}
         <div>
           <div className="flex items-center gap-2 mb-0.5">
             <span
               id="glance-status-pill"
-              className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium ${
+              className={`inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-medium border ${
                 isLeak
-                  ? 'bg-red-100 text-red-700'
+                  ? 'bg-[#F9ECEB] text-[#B8564A] border-[#B8564A]/40 font-semibold'
                   : isHighUsage
-                  ? 'bg-amber-100 text-amber-800'
-                  : 'bg-emerald-100 text-emerald-800'
+                  ? 'bg-[#E0E0E0] text-[#1A1A1A] border-[#DCDCDC]'
+                  : 'bg-[#E0E0E0] text-[#1A1A1A] border-[#DCDCDC]'
               }`}
             >
-              <span
-                className={`w-1.5 h-1.5 rounded-full ${
-                  isLeak ? 'bg-red-600 animate-ping' : isHighUsage ? 'bg-amber-600' : 'bg-emerald-600'
-                }`}
-              />
-              {isLeak ? 'Leak alert' : isHighUsage ? 'High usage' : 'All clear'}
+              {isLeak ? (
+                <span className="w-1.5 h-1.5 rounded-full bg-[#B8564A] animate-ping" />
+              ) : isHighUsage ? (
+                <span className="material-symbols-outlined text-[12px] text-[#1A1A1A]">change_history</span>
+              ) : (
+                <span className="w-1.5 h-1.5 rounded-full bg-[#1A1A1A]" />
+              )}
+              {isLeak ? 'Leak alert' : isHighUsage ? 'Usage is higher than usual' : 'All clear'}
             </span>
-            <span className="text-xs text-slate-500 font-normal">Household status</span>
+            <span className="text-xs text-[#8A8A8A] font-normal">Household status</span>
           </div>
 
-          <h1 className="text-xl sm:text-2xl lg:text-[25px] font-extrabold text-slate-900 tracking-tight leading-snug">
+          <h1 className="text-xl sm:text-2xl lg:text-[24px] font-extrabold text-[#1A1A1A] tracking-tight leading-snug">
             {isLeak
               ? "Possible leak detected — water is running when no one's using it."
               : isHighUsage
@@ -56,11 +56,11 @@ export default function GlanceBanner() {
               : 'All systems normal — no signs of water waste in your home.'}
           </h1>
 
-          <p className="text-xs sm:text-sm text-slate-600 mt-1">
+          <p className="text-xs sm:text-sm text-[#6B6B6B] mt-1">
             {isLeak ? (
               <>
                 Continuous flow of{' '}
-                <strong className="text-red-700 font-semibold">
+                <strong className="text-[#B8564A] font-semibold">
                   +{leakStatus.estimatedExcessLitersPerDay} L/day
                 </strong>{' '}
                 persisting for {leakStatus.consecutiveDays} consecutive nights. Inspect fixtures or appliances.
@@ -80,51 +80,23 @@ export default function GlanceBanner() {
             <button
               id="btn-glance-expected-now"
               onClick={() => resetHouseholdBaseline(selectedHousehold.id)}
-              className="text-xs text-slate-500 hover:text-slate-800 underline decoration-slate-300 underline-offset-2 mt-1.5 inline-block cursor-pointer transition-colors"
+              className="text-xs text-[#6B6B6B] hover:text-[#1A1A1A] underline decoration-[#DCDCDC] underline-offset-2 mt-1.5 inline-block cursor-pointer transition-colors"
             >
               This is expected now (reset baseline)
             </button>
           )}
 
-          {/* Informational burst note — shown when burst pattern detected but NOT a leak (e.g. Morales guest) */}
+          {/* Informational burst note */}
           {!isLeak && !isHighUsage && leakStatus.hasUnusualOvernightActivity && leakStatus.unusualActivityNote && (
             <p
               id="glance-overnight-activity-note"
-              className="text-xs text-slate-500 mt-1.5 flex items-center gap-1.5"
+              className="text-xs text-[#8A8A8A] mt-1.5 flex items-center gap-1.5"
             >
-              <span className="material-symbols-outlined text-[14px] text-slate-400">nights_stay</span>
+              <span className="material-symbols-outlined text-[14px] text-[#8A8A8A]">nights_stay</span>
               <span>{leakStatus.unusualActivityNote}</span>
             </p>
           )}
         </div>
-      </div>
-
-      {/* Pitch Demo Controls */}
-      <div className="flex items-center gap-2 bg-white/90 p-1.5 rounded-xl border border-slate-200/80 shadow-xs self-stretch md:self-auto shrink-0">
-        <button
-          onClick={() => simulateLeak()}
-          id="btn-simulate-leak-glance"
-          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-            isSimulatedLeakActive
-              ? 'bg-amber-500 text-white shadow-sm'
-              : 'bg-red-50 text-error hover:bg-red-100 active:scale-95'
-          }`}
-        >
-          <span className="material-symbols-outlined text-[16px]">
-            {isSimulatedLeakActive ? 'check' : 'bug_report'}
-          </span>
-          {isSimulatedLeakActive ? 'Leak Active' : 'Simulate Leak'}
-        </button>
-
-        <button
-          onClick={() => resetDemoData()}
-          id="btn-reset-data-glance"
-          className="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors flex items-center gap-1"
-          title="Reset to clean baseline seed data"
-        >
-          <span className="material-symbols-outlined text-[16px]">refresh</span>
-          Reset
-        </button>
       </div>
     </div>
   );
