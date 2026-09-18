@@ -7,6 +7,7 @@ export const INITIAL_HOUSEHOLDS: Household[] = [
     occupants: 4,
     locality: 'Pine Valley',
     expectedOvernightLiters: 0,
+    waterRatePer1000L: 50,
     notes: 'Primary demo home — normal baseline, ready for live pitch demo'
   },
   {
@@ -15,6 +16,7 @@ export const INITIAL_HOUSEHOLDS: Household[] = [
     occupants: 4,
     locality: 'Pine Valley',
     expectedOvernightLiters: 0,
+    waterRatePer1000L: 50,
     notes: 'Active leak pre-seeded: running flapper valve (+145 L/night across all 5 hourly buckets — continuous trickle)'
   },
   {
@@ -23,7 +25,20 @@ export const INITIAL_HOUSEHOLDS: Household[] = [
     occupants: 3,
     locality: 'Pine Valley',
     expectedOvernightLiters: 0,
+    waterRatePer1000L: 50,
     notes: 'Overnight guest visiting: burst usage (+42 L at 2am, rest 1 L) for 3 consecutive nights'
+  },
+  {
+    id: 'h-vance',
+    name: 'The Vance Residence',
+    occupants: 3,
+    locality: 'Pine Valley',
+    expectedOvernightLiters: 0,
+    waterRatePer1000L: 50,
+    isVacationMode: true,
+    vacationStartDate: '2026-09-12',
+    vacationEndDate: '2026-09-25',
+    notes: 'Scenario A test home: declared away on vacation, unexpected flow recorded'
   },
   {
     id: 'h-chen',
@@ -31,14 +46,34 @@ export const INITIAL_HOUSEHOLDS: Household[] = [
     occupants: 3,
     locality: 'Oakridge Suburb',
     expectedOvernightLiters: 0,
+    waterRatePer1000L: 50,
     notes: 'Consistent low-flow fixtures installed'
   },
   {
+    id: 'h-bennett',
+    name: 'The Bennett Family',
+    occupants: 3,
+    locality: 'Oakridge Suburb',
+    expectedOvernightLiters: 0,
+    waterRatePer1000L: 50,
+    notes: 'Scenario B test home: slow-creep baseline rise (+200% overnight drift over 45 days)'
+  },
+  {
+    id: 'h-ramirez',
+    name: 'Ramirez Residence',
+    occupants: 2,
+    locality: 'Oakridge Suburb',
+    expectedOvernightLiters: 0,
+    waterRatePer1000L: 50,
+    notes: 'Peer-bridge home ensuring Oakridge occupants ±1 connectivity'
+  },
+  {
     id: 'h-jenkins',
-    name: 'Greenwood Cottage (Sarah Jenkins)',
+    name: 'Greenwood Cottage (Complan Neeraj)',
     occupants: 1,
     locality: 'Oakridge Suburb',
     expectedOvernightLiters: 0,
+    waterRatePer1000L: 50,
     notes: 'Single occupant eco-conscious home'
   },
   {
@@ -47,7 +82,26 @@ export const INITIAL_HOUSEHOLDS: Household[] = [
     occupants: 5,
     locality: 'Harborview District',
     expectedOvernightLiters: 0,
+    waterRatePer1000L: 50,
     notes: 'Scheduled appliance test home: overnight sprinkler running 35 L/night (flags when expectedOvernightLiters is 0; clears when set to 35)'
+  },
+  {
+    id: 'h-foster',
+    name: 'Foster Residence',
+    occupants: 4,
+    locality: 'Harborview District',
+    expectedOvernightLiters: 0,
+    waterRatePer1000L: 50,
+    notes: 'Peer-bridge home ensuring Harborview occupants ±1 connectivity'
+  },
+  {
+    id: 'h-singh',
+    name: 'Singh Family House',
+    occupants: 3,
+    locality: 'Harborview District',
+    expectedOvernightLiters: 0,
+    waterRatePer1000L: 50,
+    notes: 'Peer-bridge home ensuring Harborview occupants ±1 connectivity'
   },
   {
     id: 'h-taylor',
@@ -55,7 +109,17 @@ export const INITIAL_HOUSEHOLDS: Household[] = [
     occupants: 2,
     locality: 'Harborview District',
     expectedOvernightLiters: 0,
+    waterRatePer1000L: 50,
     notes: 'Downtown duplex'
+  },
+  {
+    id: 'h-gallagher',
+    name: 'Gallagher Flat',
+    occupants: 2,
+    locality: 'Harborview District',
+    expectedOvernightLiters: 0,
+    waterRatePer1000L: 50,
+    notes: 'Scenario E test home: zero flow detected for last 3 days with no vacation declared (stalled meter)'
   }
 ];
 
@@ -142,6 +206,40 @@ export function generateSeedReadings(): MeterReading[] {
         b3 += 7;
         b4 += 7;
         b5 += 7;
+      }
+
+      // 4. Scenario A: Vance (h-vance) Vacation Mode test
+      // Family declared away for last 6 days. For dayOffset 2..6: 0L. For dayOffset 0..1: unexpected flow!
+      if (household.id === 'h-vance') {
+        if (dayOffset >= 2 && dayOffset <= 6) {
+          daytimeLiters = 0;
+          b1 = 0; b2 = 0; b3 = 0; b4 = 0; b5 = 0;
+        } else if (dayOffset <= 1) {
+          daytimeLiters = 52;
+          b1 = 3; b2 = 3; b3 = 3; b4 = 3; b5 = 3; // +15 L overnight
+        }
+      }
+
+      // 5. Scenario B: Bennett (h-bennett) Slow-Creep leak test
+      // 45-60 days ago: ~5L overnight. Over 45 days, creeps up smoothly to ~20L overnight
+      if (household.id === 'h-bennett') {
+        if (dayOffset <= 45) {
+          const creep = Math.round(((45 - dayOffset) / 45) * 14);
+          const perB = Math.floor(creep / 5);
+          const rem = creep % 5;
+          b1 += perB + (rem > 0 ? 1 : 0);
+          b2 += perB + (rem > 1 ? 1 : 0);
+          b3 += perB + (rem > 2 ? 1 : 0);
+          b4 += perB + (rem > 3 ? 1 : 0);
+          b5 += perB;
+        }
+      }
+
+      // 6. Scenario E: Gallagher (h-gallagher) Meter Stall / Zero-Flow test
+      // Active non-vacation home with 0L consumption for the last 3 days
+      if (household.id === 'h-gallagher' && dayOffset <= 2) {
+        daytimeLiters = 0;
+        b1 = 0; b2 = 0; b3 = 0; b4 = 0; b5 = 0;
       }
 
       const overnightBuckets: [number, number, number, number, number] = [b1, b2, b3, b4, b5];

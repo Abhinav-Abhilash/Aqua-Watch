@@ -13,14 +13,13 @@ export default function GlanceBanner() {
   return (
     <div
       id="glance-banner"
-      className={`rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-all duration-200 bg-[#FAFAFA] border border-[#DCDCDC] ${
+      className={`rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-all duration-200 bg-[#FFFFFF] border border-[#E4E7EC] shadow-xs ${
         isLeak
-          ? 'border-l-4 border-l-[#B8564A]'
+          ? 'border-l-4 border-l-[#F04438] bg-[#FEF3F2]/40'
           : ''
       }`}
     >
       <div className="flex items-center gap-3.5 sm:gap-4.5">
-        {/* Status Indicator Icon (circle for normal, triangle for high usage, red water drop for leak) */}
         <StatusFace severity={leakStatus.severity} />
 
         {/* Status Sentence - LARGEST TEXT ON PAGE */}
@@ -30,25 +29,25 @@ export default function GlanceBanner() {
               id="glance-status-pill"
               className={`inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-medium border ${
                 isLeak
-                  ? 'bg-[#F9ECEB] text-[#B8564A] border-[#B8564A]/40 font-semibold'
+                  ? 'bg-[#FEF3F2] text-[#F04438] border-[#F04438]/30 font-semibold'
                   : isHighUsage
-                  ? 'bg-[#E0E0E0] text-[#1A1A1A] border-[#DCDCDC]'
-                  : 'bg-[#E0E0E0] text-[#1A1A1A] border-[#DCDCDC]'
+                  ? 'bg-[#FFFAEB] text-[#F79009] border-[#F79009]/30 font-semibold'
+                  : 'bg-[#ECFDF3] text-[#12B76A] border-[#12B76A]/30 font-semibold'
               }`}
             >
               {isLeak ? (
-                <span className="w-1.5 h-1.5 rounded-full bg-[#B8564A] animate-ping" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#F04438] animate-ping" />
               ) : isHighUsage ? (
-                <span className="material-symbols-outlined text-[12px] text-[#1A1A1A]">change_history</span>
+                <span className="material-symbols-outlined text-[12px] text-[#F79009]">change_history</span>
               ) : (
-                <span className="w-1.5 h-1.5 rounded-full bg-[#1A1A1A]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#12B76A]" />
               )}
               {isLeak ? 'Leak alert' : isHighUsage ? 'Usage is higher than usual' : 'All clear'}
             </span>
-            <span className="text-xs text-[#8A8A8A] font-normal">Household status</span>
+            <span className="text-xs text-[#667085] font-normal">Household status</span>
           </div>
 
-          <h1 className="text-xl sm:text-2xl lg:text-[24px] font-extrabold text-[#1A1A1A] tracking-tight leading-snug">
+          <h1 className="text-xl sm:text-2xl lg:text-[24px] font-extrabold text-[#101828] tracking-tight leading-snug">
             {isLeak
               ? "Possible leak detected — water is running when no one's using it."
               : isHighUsage
@@ -56,11 +55,11 @@ export default function GlanceBanner() {
               : 'All systems normal — no signs of water waste in your home.'}
           </h1>
 
-          <p className="text-xs sm:text-sm text-[#6B6B6B] mt-1">
+          <p className="text-xs sm:text-sm text-[#667085] mt-1">
             {isLeak ? (
               <>
                 Continuous flow of{' '}
-                <strong className="text-[#B8564A] font-semibold">
+                <strong className="text-[#F04438] font-semibold">
                   +{leakStatus.estimatedExcessLitersPerDay} L/day
                 </strong>{' '}
                 persisting for {leakStatus.consecutiveDays} consecutive nights. Inspect fixtures or appliances.
@@ -80,7 +79,7 @@ export default function GlanceBanner() {
             <button
               id="btn-glance-expected-now"
               onClick={() => resetHouseholdBaseline(selectedHousehold.id)}
-              className="text-xs text-[#6B6B6B] hover:text-[#1A1A1A] underline decoration-[#DCDCDC] underline-offset-2 mt-1.5 inline-block cursor-pointer transition-colors"
+              className="text-xs text-[#2F6FED] hover:underline mt-1.5 inline-block cursor-pointer transition-colors"
             >
               This is expected now (reset baseline)
             </button>
@@ -90,9 +89,9 @@ export default function GlanceBanner() {
           {!isLeak && !isHighUsage && leakStatus.hasUnusualOvernightActivity && leakStatus.unusualActivityNote && (
             <p
               id="glance-overnight-activity-note"
-              className="text-xs text-[#8A8A8A] mt-1.5 flex items-center gap-1.5"
+              className="text-xs text-[#667085] mt-1.5 flex items-center gap-1.5"
             >
-              <span className="material-symbols-outlined text-[14px] text-[#8A8A8A]">nights_stay</span>
+              <span className="material-symbols-outlined text-[14px] text-[#2F6FED]">nights_stay</span>
               <span>{leakStatus.unusualActivityNote}</span>
             </p>
           )}

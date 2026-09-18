@@ -35,76 +35,76 @@ export default function ZoneStatusStrip({
       {/* Zone 1 */}
       <div
         onClick={() => handleClick('zone-1')}
-        className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between ${
+        className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between shadow-xs ${
           selectedZone === 'zone-1'
-            ? 'bg-[#E0E0E0]/80 border-[#1A1A1A] ring-2 ring-[#1A1A1A]/20'
-            : 'bg-[#FAFAFA] border-[#DCDCDC] hover:border-[#8A8A8A]'
+            ? 'bg-[#EFF4FF] border-[#2F6FED] ring-2 ring-[#2F6FED]/20'
+            : 'bg-[#FFFFFF] border-[#E4E7EC] hover:border-[#2F6FED]/50'
         }`}
       >
         <div className="flex items-center justify-between text-xs">
           <div className="flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-[16px] text-[#6B6B6B]">kitchen</span>
-            <span className="font-semibold text-[#1A1A1A]">Zone 1: Utility &amp; Kitchen</span>
+            <span className="material-symbols-outlined text-[16px] text-[#2F6FED]">kitchen</span>
+            <span className="font-semibold text-[#101828]">Zone 1: Utility &amp; Kitchen</span>
           </div>
-          <span className={`w-2 h-2 rounded-full ${!isValveOpen ? 'bg-[#8A8A8A]' : 'bg-[#1A1A1A]'}`} />
+          <span className={`w-2 h-2 rounded-full ${!isValveOpen ? 'bg-[#98A2B3]' : 'bg-[#12B76A]'}`} />
         </div>
         <div className="my-2.5">
-          <div className="text-xl font-bold text-[#1A1A1A]">
+          <div className="text-xl font-bold text-[#101828]">
             0.0 L/m
           </div>
-          <span className="text-xs text-[#6B6B6B] font-medium">
+          <span className="text-xs text-[#667085] font-medium">
             {!isValveOpen ? 'Circuit isolated' : 'Idle baseline normal'}
           </span>
         </div>
-        <div className="h-3 w-full flex items-end gap-1 opacity-70">
-          <span className="w-1/6 bg-[#DCDCDC] h-1.5 rounded-full" />
-          <span className="w-1/6 bg-[#DCDCDC] h-2.5 rounded-full" />
-          <span className="w-1/6 bg-[#DCDCDC] h-2 rounded-full" />
-          <span className="w-1/6 bg-[#DCDCDC] h-3 rounded-full" />
-          <span className="w-1/6 bg-[#DCDCDC] h-1.5 rounded-full" />
-          <span className="w-1/6 bg-[#1A1A1A] h-1 rounded-full" />
+        <div className="h-3 w-full flex items-end gap-1 opacity-80">
+          <span className="w-1/6 bg-[#E4E7EC] h-1.5 rounded-full" />
+          <span className="w-1/6 bg-[#E4E7EC] h-2.5 rounded-full" />
+          <span className="w-1/6 bg-[#E4E7EC] h-2 rounded-full" />
+          <span className="w-1/6 bg-[#E4E7EC] h-3 rounded-full" />
+          <span className="w-1/6 bg-[#E4E7EC] h-1.5 rounded-full" />
+          <span className="w-1/6 bg-[#2F6FED] h-1 rounded-full" />
         </div>
       </div>
 
-      {/* Zone 2 (Reactive to Leak — Monochrome shape and weight distinction) */}
+      {/* Zone 2 (Reactive to Leak — Red accent when leak active) */}
       <div
         onClick={() => handleClick('zone-2')}
-        className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between ${
+        className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between shadow-xs ${
           selectedZone === 'zone-2'
-            ? 'ring-2 ring-[#1A1A1A]/20'
+            ? 'ring-2 ring-[#2F6FED]/20'
             : ''
         } ${
           !isValveOpen
-            ? 'bg-[#E0E0E0]/60 border-[#DCDCDC] text-[#6B6B6B]'
+            ? 'bg-[#F8F9FB] border-[#E4E7EC] text-[#667085]'
             : isLeak
-            ? 'bg-[#FAFAFA] border-[#1A1A1A] border-l-4'
-            : 'bg-[#FAFAFA] border-[#DCDCDC] hover:border-[#8A8A8A]'
+            ? 'bg-[#FEF3F2] border-[#F04438] border-l-4'
+            : 'bg-[#FFFFFF] border-[#E4E7EC] hover:border-[#2F6FED]/50'
         }`}
       >
         <div className="flex items-center justify-between text-xs">
           <div className="flex items-center gap-1.5">
-            <span className={`material-symbols-outlined text-[16px] ${!isValveOpen ? 'text-[#6B6B6B]' : 'text-[#1A1A1A]'}`}>
+            <span className={`material-symbols-outlined text-[16px] ${!isValveOpen ? 'text-[#667085]' : isLeak ? 'text-[#F04438]' : 'text-[#2F6FED]'}`}>
               yard
             </span>
-            <span className={`font-semibold ${!isValveOpen ? 'text-[#6B6B6B]' : 'text-[#1A1A1A]'}`}>
+            <span className={`font-semibold ${!isValveOpen ? 'text-[#667085]' : 'text-[#101828]'}`}>
               Zone 2: Yard &amp; Irrigation
             </span>
           </div>
           <span
             className={`w-2 h-2 rounded-full ${
               !isValveOpen
-                ? 'bg-[#8A8A8A]'
+                ? 'bg-[#98A2B3]'
                 : isLeak
-                ? 'bg-[#1A1A1A] ring-2 ring-[#DCDCDC]'
-                : 'bg-[#1A1A1A]'
+                ? 'bg-[#F04438] ring-2 ring-[#FDA29B]'
+                : 'bg-[#12B76A]'
             }`}
           />
         </div>
         <div className="my-2.5">
-          <div className={`text-xl font-bold ${!isValveOpen ? 'text-[#6B6B6B]' : 'text-[#1A1A1A]'}`}>
+          <div className={`text-xl font-bold ${!isValveOpen ? 'text-[#667085]' : isLeak ? 'text-[#F04438]' : 'text-[#101828]'}`}>
             {!isValveOpen ? '0.0 L/m' : `${zone2Lpm} L/m`}
           </div>
-          <span className={`text-xs font-medium ${!isValveOpen ? 'text-[#8A8A8A]' : isLeak ? 'text-[#1A1A1A] font-bold' : 'text-[#6B6B6B]'}`}>
+          <span className={`text-xs font-medium ${!isValveOpen ? 'text-[#667085]' : isLeak ? 'text-[#F04438] font-bold' : 'text-[#667085]'}`}>
             {!isValveOpen
               ? 'Circuit shut off'
               : isLeak
@@ -115,30 +115,30 @@ export default function ZoneStatusStrip({
         <div className="h-3 w-full flex items-end gap-1">
           {!isValveOpen ? (
             <>
-              <span className="w-1/6 bg-[#DCDCDC] h-1 rounded-full" />
-              <span className="w-1/6 bg-[#DCDCDC] h-1 rounded-full" />
-              <span className="w-1/6 bg-[#DCDCDC] h-1 rounded-full" />
-              <span className="w-1/6 bg-[#DCDCDC] h-1 rounded-full" />
-              <span className="w-1/6 bg-[#DCDCDC] h-1 rounded-full" />
-              <span className="w-1/6 bg-[#DCDCDC] h-1 rounded-full" />
+              <span className="w-1/6 bg-[#E4E7EC] h-1 rounded-full" />
+              <span className="w-1/6 bg-[#E4E7EC] h-1 rounded-full" />
+              <span className="w-1/6 bg-[#E4E7EC] h-1 rounded-full" />
+              <span className="w-1/6 bg-[#E4E7EC] h-1 rounded-full" />
+              <span className="w-1/6 bg-[#E4E7EC] h-1 rounded-full" />
+              <span className="w-1/6 bg-[#E4E7EC] h-1 rounded-full" />
             </>
           ) : isLeak ? (
             <>
-              <span className="w-1/6 bg-[#DCDCDC] h-2 rounded-full" />
-              <span className="w-1/6 bg-[#9A9A9A] h-2.5 rounded-full" />
-              <span className="w-1/6 bg-[#6B6B6B] h-3 rounded-full" />
-              <span className="w-1/6 bg-[#4A4A4A] h-3 rounded-full" />
-              <span className="w-1/6 bg-[#1A1A1A] h-3 rounded-full" />
-              <span className="w-1/6 bg-[#1A1A1A] h-3 rounded-full" />
+              <span className="w-1/6 bg-[#FDA29B] h-2 rounded-full" />
+              <span className="w-1/6 bg-[#F04438] h-2.5 rounded-full" />
+              <span className="w-1/6 bg-[#F04438] h-3 rounded-full" />
+              <span className="w-1/6 bg-[#D92D20] h-3 rounded-full" />
+              <span className="w-1/6 bg-[#D92D20] h-3 rounded-full" />
+              <span className="w-1/6 bg-[#B42318] h-3 rounded-full" />
             </>
           ) : (
             <>
-              <span className="w-1/6 bg-[#DCDCDC] h-1.5 rounded-full" />
-              <span className="w-1/6 bg-[#DCDCDC] h-1.5 rounded-full" />
-              <span className="w-1/6 bg-[#DCDCDC] h-2 rounded-full" />
-              <span className="w-1/6 bg-[#DCDCDC] h-1.5 rounded-full" />
-              <span className="w-1/6 bg-[#1A1A1A] h-2 rounded-full" />
-              <span className="w-1/6 bg-[#1A1A1A] h-1.5 rounded-full" />
+              <span className="w-1/6 bg-[#E4E7EC] h-1.5 rounded-full" />
+              <span className="w-1/6 bg-[#E4E7EC] h-1.5 rounded-full" />
+              <span className="w-1/6 bg-[#E4E7EC] h-2 rounded-full" />
+              <span className="w-1/6 bg-[#E4E7EC] h-1.5 rounded-full" />
+              <span className="w-1/6 bg-[#2F6FED] h-2 rounded-full" />
+              <span className="w-1/6 bg-[#2F6FED] h-1.5 rounded-full" />
             </>
           )}
         </div>
@@ -147,34 +147,34 @@ export default function ZoneStatusStrip({
       {/* Zone 3 */}
       <div
         onClick={() => handleClick('zone-3')}
-        className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between ${
+        className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between shadow-xs ${
           selectedZone === 'zone-3'
-            ? 'bg-[#E0E0E0]/80 border-[#1A1A1A] ring-2 ring-[#1A1A1A]/20'
-            : 'bg-[#FAFAFA] border-[#DCDCDC] hover:border-[#8A8A8A]'
+            ? 'bg-[#EFF4FF] border-[#2F6FED] ring-2 ring-[#2F6FED]/20'
+            : 'bg-[#FFFFFF] border-[#E4E7EC] hover:border-[#2F6FED]/50'
         }`}
       >
         <div className="flex items-center justify-between text-xs">
           <div className="flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-[16px] text-[#6B6B6B]">bathtub</span>
-            <span className="font-semibold text-[#1A1A1A]">Zone 3: Bath &amp; Fixtures</span>
+            <span className="material-symbols-outlined text-[16px] text-[#2F6FED]">bathtub</span>
+            <span className="font-semibold text-[#101828]">Zone 3: Bath &amp; Fixtures</span>
           </div>
-          <span className={`w-2 h-2 rounded-full ${!isValveOpen ? 'bg-[#8A8A8A]' : 'bg-[#1A1A1A]'}`} />
+          <span className={`w-2 h-2 rounded-full ${!isValveOpen ? 'bg-[#98A2B3]' : 'bg-[#12B76A]'}`} />
         </div>
         <div className="my-2.5">
-          <div className="text-xl font-bold text-[#1A1A1A]">
+          <div className="text-xl font-bold text-[#101828]">
             {!isValveOpen ? '0.0 L/m' : '1.2 L/m'}
           </div>
-          <span className="text-xs text-[#6B6B6B] font-medium">
+          <span className="text-xs text-[#667085] font-medium">
             {!isValveOpen ? 'Circuit isolated' : 'Standard domestic draw'}
           </span>
         </div>
-        <div className="h-3 w-full flex items-end gap-1 opacity-70">
-          <span className="w-1/6 bg-[#DCDCDC] h-2.5 rounded-full" />
-          <span className="w-1/6 bg-[#DCDCDC] h-2 rounded-full" />
-          <span className="w-1/6 bg-[#DCDCDC] h-3 rounded-full" />
-          <span className="w-1/6 bg-[#DCDCDC] h-2.5 rounded-full" />
-          <span className="w-1/6 bg-[#DCDCDC] h-1.5 rounded-full" />
-          <span className="w-1/6 bg-[#1A1A1A] h-2 rounded-full" />
+        <div className="h-3 w-full flex items-end gap-1 opacity-80">
+          <span className="w-1/6 bg-[#E4E7EC] h-2.5 rounded-full" />
+          <span className="w-1/6 bg-[#E4E7EC] h-2 rounded-full" />
+          <span className="w-1/6 bg-[#E4E7EC] h-3 rounded-full" />
+          <span className="w-1/6 bg-[#E4E7EC] h-2.5 rounded-full" />
+          <span className="w-1/6 bg-[#E4E7EC] h-1.5 rounded-full" />
+          <span className="w-1/6 bg-[#2F6FED] h-2 rounded-full" />
         </div>
       </div>
 

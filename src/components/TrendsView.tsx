@@ -17,8 +17,17 @@ import {
 } from 'recharts';
 
 export default function TrendsView() {
-  const { timeline, selectedHousehold, leakStatus } = useAqua();
+  const { timeline, selectedHousehold, leakStatus, theme } = useAqua();
   const [dualRange, setDualRange] = useState<'14d' | '30d' | '60d'>('30d');
+
+  const isDark = theme === 'dark';
+  const blueColor = isDark ? '#5B8DEF' : '#2F6FED';
+  const overnightStroke = isDark ? '#6B7280' : '#667085';
+  const leakColor = isDark ? '#F97066' : '#F04438';
+  const peerBarColor = isDark ? '#2A2D35' : '#E4E7EC';
+  const gridColor = isDark ? '#2A2D35' : '#F0F1F3';
+  const axisColor = isDark ? '#2A2D35' : '#E4E7EC';
+  const tickColor = isDark ? '#9AA0AC' : '#667085';
 
   // Dual-signal daytime vs overnight data
   const dualRangeCount = dualRange === '14d' ? 14 : dualRange === '30d' ? 30 : 60;
@@ -93,22 +102,22 @@ export default function TrendsView() {
     <div className="space-y-6">
       
       {/* 1. Main Full-Size Dual-Signal Chart (Daytime vs Overnight) */}
-      <div className="bg-[#FAFAFA] rounded-2xl border border-[#DCDCDC] p-4 sm:p-6">
-        <div className="flex flex-wrap items-center justify-between pb-4 border-b border-[#DCDCDC] gap-3">
+      <div className="bg-[#FFFFFF] rounded-2xl border border-[#E4E7EC] p-4 sm:p-6 shadow-xs">
+        <div className="flex flex-wrap items-center justify-between pb-4 border-b border-[#E4E7EC] gap-3">
           <div>
-            <h2 className="text-base sm:text-lg font-bold text-[#1A1A1A]">
+            <h2 className="text-base sm:text-lg font-bold text-[#101828]">
               Dual-Signal Consumption Trend
             </h2>
-            <p className="text-xs text-[#8A8A8A] mt-0.5">
+            <p className="text-xs text-[#667085] mt-0.5">
               Separates daytime usage from overnight flow to detect unattended consumption.
             </p>
           </div>
 
-          <div className="flex items-center gap-1 bg-[#E0E0E0] p-1 rounded-full border border-[#DCDCDC] text-xs font-semibold text-[#6B6B6B]">
+          <div className="flex items-center gap-1 bg-[#F8F9FB] p-1 rounded-full border border-[#E4E7EC] text-xs font-semibold text-[#667085]">
             <button
               onClick={() => setDualRange('14d')}
               className={`px-3 py-1 rounded-full transition-colors cursor-pointer ${
-                dualRange === '14d' ? 'bg-[#1A1A1A] text-white shadow-[0_2px_6px_rgba(0,0,0,0.12)]' : 'hover:text-[#1A1A1A]'
+                dualRange === '14d' ? 'bg-[#EFF4FF] text-[#2F6FED] border border-[#2F6FED]/20 font-bold' : 'hover:text-[#101828]'
               }`}
             >
               14 days
@@ -116,7 +125,7 @@ export default function TrendsView() {
             <button
               onClick={() => setDualRange('30d')}
               className={`px-3 py-1 rounded-full transition-colors cursor-pointer ${
-                dualRange === '30d' ? 'bg-[#1A1A1A] text-white shadow-[0_2px_6px_rgba(0,0,0,0.12)]' : 'hover:text-[#1A1A1A]'
+                dualRange === '30d' ? 'bg-[#EFF4FF] text-[#2F6FED] border border-[#2F6FED]/20 font-bold' : 'hover:text-[#101828]'
               }`}
             >
               30 days
@@ -124,7 +133,7 @@ export default function TrendsView() {
             <button
               onClick={() => setDualRange('60d')}
               className={`px-3 py-1 rounded-full transition-colors cursor-pointer ${
-                dualRange === '60d' ? 'bg-[#1A1A1A] text-white shadow-[0_2px_6px_rgba(0,0,0,0.12)]' : 'hover:text-[#1A1A1A]'
+                dualRange === '60d' ? 'bg-[#EFF4FF] text-[#2F6FED] border border-[#2F6FED]/20 font-bold' : 'hover:text-[#101828]'
               }`}
             >
               60 days
@@ -136,47 +145,47 @@ export default function TrendsView() {
         <div className="mt-5 w-full h-80 sm:h-96">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={dualSignalData} margin={{ top: 15, right: 20, left: 0, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#EBEBEB" />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
               <XAxis
                 dataKey="date"
                 tickLine={false}
-                axisLine={{ stroke: '#DCDCDC' }}
-                tick={{ fill: '#8A8A8A', fontSize: 11 }}
+                axisLine={{ stroke: axisColor }}
+                tick={{ fill: tickColor, fontSize: 11 }}
                 minTickGap={20}
               />
               <YAxis
                 tickLine={false}
-                axisLine={{ stroke: '#DCDCDC' }}
-                tick={{ fill: '#8A8A8A', fontSize: 11 }}
+                axisLine={{ stroke: axisColor }}
+                tick={{ fill: tickColor, fontSize: 11 }}
                 unit=" L"
-                label={{ value: 'Liters / Day', angle: -90, position: 'insideLeft', fill: '#8A8A8A', fontSize: 11 }}
+                label={{ value: 'Liters / Day', angle: -90, position: 'insideLeft', fill: tickColor, fontSize: 11 }}
               />
               <Tooltip
                 content={({ active, payload }) => {
                   if (active && payload && payload.length) {
                     const data = payload[0].payload;
                     return (
-                      <div className="bg-[#FAFAFA] p-3.5 rounded-2xl shadow-lg border border-[#DCDCDC] text-xs max-w-xs z-50">
-                        <div className="flex items-center justify-between border-b border-[#DCDCDC] pb-1.5 mb-2">
-                          <span className="font-bold text-[#1A1A1A]">{data.fullDate}</span>
+                      <div className="bg-[#FFFFFF] p-3.5 rounded-xl shadow-lg border border-[#E4E7EC] text-xs max-w-xs z-50">
+                        <div className="flex items-center justify-between border-b border-[#E4E7EC] pb-1.5 mb-2">
+                          <span className="font-bold text-[#101828]">{data.fullDate}</span>
                           {data.isAnomalous && (
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#F9ECEB] text-[#B8564A]">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FEF3F2] text-[#F04438]">
                               Leak Flagged
                             </span>
                           )}
                         </div>
                         <div className="space-y-1">
                           <div className="flex items-center justify-between">
-                            <span className="text-[#1A1A1A] font-medium">Daytime draw:</span>
-                            <strong className="text-[#1A1A1A]">{data.daytime} L</strong>
+                            <span className="text-[#2F6FED] font-medium">Daytime draw:</span>
+                            <strong className="text-[#101828]">{data.daytime} L</strong>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-[#6B6B6B] font-medium">Overnight flow:</span>
-                            <strong className="text-[#1A1A1A]">{data.overnight} L</strong>
+                            <span className="text-[#667085] font-medium">Overnight flow:</span>
+                            <strong className="text-[#101828]">{data.overnight} L</strong>
                           </div>
-                          <div className="flex items-center justify-between pt-1 border-t border-[#DCDCDC] text-[#8A8A8A]">
+                          <div className="flex items-center justify-between pt-1 border-t border-[#E4E7EC] text-[#667085]">
                             <span>Total usage:</span>
-                            <strong className="text-[#1A1A1A]">{data.total} L</strong>
+                            <strong className="text-[#101828]">{data.total} L</strong>
                           </div>
                         </div>
                       </div>
@@ -191,13 +200,13 @@ export default function TrendsView() {
                 iconType="circle"
                 wrapperStyle={{ fontSize: '12px', paddingBottom: '10px' }}
               />
-              {/* Daytime Line: Calm mid-tone blue #4A7FA5 representing daytime water flow */}
+              {/* Daytime Line: Solid Blue */}
               <Line
                 type="monotone"
                 dataKey="daytime"
                 name="Daytime usage (6am - 11pm)"
-                stroke="#4A7FA5"
-                strokeWidth={2.2}
+                stroke={blueColor}
+                strokeWidth={2.4}
                 dot={(props: any) => {
                   const { cx, cy, payload } = props;
                   if (!cx || !cy) return <g key={props.key} />;
@@ -207,31 +216,31 @@ export default function TrendsView() {
                       key={props.key || payload.date}
                       cx={cx}
                       cy={cy}
-                      r={isAnomalous ? 4.5 : 2.5}
-                      fill={isAnomalous ? '#B8564A' : '#4A7FA5'}
-                      stroke="#FAFAFA"
-                      strokeWidth={1}
+                      r={isAnomalous ? 5 : 2.5}
+                      fill={isAnomalous ? leakColor : blueColor}
+                      stroke={isDark ? '#1E2128' : '#FFFFFF'}
+                      strokeWidth={1.5}
                     />
                   );
                 }}
-                activeDot={{ r: 5, fill: '#4A7FA5' }}
+                activeDot={{ r: 5, fill: blueColor }}
               />
-              {/* Overnight Line: Mid-grey #8A8A8A, dashed */}
+              {/* Overnight Line: Grey, dashed */}
               <Line
                 type="monotone"
                 dataKey="overnight"
                 name="Overnight flow (11pm - 6am)"
-                stroke="#8A8A8A"
+                stroke={overnightStroke}
                 strokeWidth={2}
                 strokeDasharray="4 4"
-                dot={{ r: 2.5, fill: '#8A8A8A' }}
+                dot={{ r: 2.5, fill: overnightStroke }}
                 activeDot={{ r: 5 }}
               />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
-        <div className="mt-3 pt-3 border-t border-[#DCDCDC] flex flex-wrap items-center justify-between text-xs text-[#8A8A8A] gap-2">
+        <div className="mt-3 pt-3 border-t border-[#E4E7EC] flex flex-wrap items-center justify-between text-xs text-[#667085] gap-2">
           <span>Daytime: primary occupant living activity</span>
           <span>Overnight: calibrated unattended baseline check</span>
         </div>
@@ -240,18 +249,18 @@ export default function TrendsView() {
       {/* 2. Side-by-Side Lower Trends: 4-Week Peer Bar Chart & Zoomed-In Overnight Trendline */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         
-        {/* Chart A: 4-Week Household vs. Peer Group Weekly Totals */}
-        <div className="lg:col-span-6 bg-[#FAFAFA] rounded-2xl border border-[#DCDCDC] p-5 flex flex-col justify-between">
+        {/* Chart A: 4-Week Household vs. Peer Group Weekly Totals (Bars in blue & light grey) */}
+        <div className="lg:col-span-6 bg-[#FFFFFF] rounded-2xl border border-[#E4E7EC] p-5 flex flex-col justify-between shadow-xs">
           <div>
-            <div className="flex flex-wrap items-center justify-between pb-3 border-b border-[#DCDCDC] gap-2">
-              <h3 className="font-bold text-[#1A1A1A] text-sm sm:text-base">
+            <div className="flex flex-wrap items-center justify-between pb-3 border-b border-[#E4E7EC] gap-2">
+              <h3 className="font-bold text-[#101828] text-sm sm:text-base">
                 4-Week Usage vs. Peer Group
               </h3>
-              <span className="text-xs text-[#8A8A8A]">
+              <span className="text-xs text-[#667085]">
                 Weekly total (L)
               </span>
             </div>
-            <p className="text-xs text-[#8A8A8A] mt-2 mb-4">
+            <p className="text-xs text-[#667085] mt-2 mb-4">
               Comparing 7-day cumulative consumption for {selectedHousehold.name} vs. {selectedHousehold.locality} peer average ({selectedHousehold.occupants} occupants).
             </p>
 
@@ -259,17 +268,17 @@ export default function TrendsView() {
             <div className="w-full h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={weeklyData} margin={{ top: 10, right: 10, left: -10, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#EBEBEB" />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
                   <XAxis
                     dataKey="label"
                     tickLine={false}
-                    axisLine={{ stroke: '#DCDCDC' }}
-                    tick={{ fill: '#8A8A8A', fontSize: 11 }}
+                    axisLine={{ stroke: axisColor }}
+                    tick={{ fill: tickColor, fontSize: 11 }}
                   />
                   <YAxis
                     tickLine={false}
-                    axisLine={{ stroke: '#DCDCDC' }}
-                    tick={{ fill: '#8A8A8A', fontSize: 11 }}
+                    axisLine={{ stroke: axisColor }}
+                    tick={{ fill: tickColor, fontSize: 11 }}
                     unit=" L"
                   />
                   <Tooltip
@@ -277,11 +286,11 @@ export default function TrendsView() {
                       if (active && payload && payload.length) {
                         const d = payload[0].payload;
                         return (
-                          <div className="bg-[#FAFAFA] p-3 rounded-2xl shadow-lg border border-[#DCDCDC] text-xs">
-                            <div className="font-bold text-[#1A1A1A] mb-1.5">{d.label}</div>
-                            <div className="text-[#1A1A1A] font-semibold">{selectedHousehold.name}: {d.householdTotal} L</div>
-                            <div className="text-[#8A8A8A]">Peers: {d.peerTotal} L</div>
-                            <div className="mt-1 font-bold text-[#1A1A1A]">
+                          <div className="bg-[#FFFFFF] p-3 rounded-xl shadow-lg border border-[#E4E7EC] text-xs">
+                            <div className="font-bold text-[#101828] mb-1.5">{d.label}</div>
+                            <div className="text-[#2F6FED] font-semibold">{selectedHousehold.name}: {d.householdTotal} L</div>
+                            <div className="text-[#667085]">Peers: {d.peerTotal} L</div>
+                            <div className={`mt-1 font-bold ${d.diffPercent > 0 ? 'text-[#F04438]' : 'text-[#12B76A]'}`}>
                               {d.diffPercent > 0 ? `+${d.diffPercent}% above peers` : `${Math.abs(d.diffPercent)}% below peers`}
                             </div>
                           </div>
@@ -296,31 +305,32 @@ export default function TrendsView() {
                     iconType="rect"
                     wrapperStyle={{ fontSize: '11px' }}
                   />
-                  <Bar dataKey="householdTotal" name={`${selectedHousehold.name}`} fill="#1A1A1A" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="peerTotal" name="Peer group average" fill="#C5C5C5" radius={[4, 4, 0, 0]} />
+                  {/* Household bars in Blue, Peer average in Grey */}
+                  <Bar dataKey="householdTotal" name={`${selectedHousehold.name}`} fill={blueColor} radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="peerTotal" name="Peer group average" fill={peerBarColor} radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </div>
 
-          <div className="pt-3 border-t border-[#DCDCDC] text-[11px] text-[#8A8A8A] flex flex-wrap items-center justify-between gap-2">
+          <div className="pt-3 border-t border-[#E4E7EC] text-[11px] text-[#667085] flex flex-wrap items-center justify-between gap-2">
             <span>Aggregated 7-day blocks</span>
             <span>Active meter logs</span>
           </div>
         </div>
 
         {/* Chart B: Dedicated Zoomed-In Overnight Leak Signal */}
-        <div className="lg:col-span-6 bg-[#FAFAFA] rounded-2xl border border-[#DCDCDC] p-5 flex flex-col justify-between">
+        <div className="lg:col-span-6 bg-[#FFFFFF] rounded-2xl border border-[#E4E7EC] p-5 flex flex-col justify-between shadow-xs">
           <div>
-            <div className="flex flex-wrap items-center justify-between pb-3 border-b border-[#DCDCDC] gap-2">
-              <h3 className="font-bold text-[#1A1A1A] text-sm sm:text-base">
+            <div className="flex flex-wrap items-center justify-between pb-3 border-b border-[#E4E7EC] gap-2">
+              <h3 className="font-bold text-[#101828] text-sm sm:text-base">
                 Overnight Leak Signal
               </h3>
-              <span className="text-xs text-[#8A8A8A]">
+              <span className="text-xs text-[#667085]">
                 0 – 160L scale
               </span>
             </div>
-            <p className="text-xs text-[#8A8A8A] mt-2 mb-4">
+            <p className="text-xs text-[#667085] mt-2 mb-4">
               Dedicated high-resolution view of late-night flow (11pm–6am). Isolates leak signals that get lost next to daytime numbers.
             </p>
 
@@ -328,18 +338,18 @@ export default function TrendsView() {
             <div className="w-full h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={overnightTrendData} margin={{ top: 10, right: 15, left: -10, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#EBEBEB" />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
                   <XAxis
                     dataKey="date"
                     tickLine={false}
-                    axisLine={{ stroke: '#DCDCDC' }}
-                    tick={{ fill: '#8A8A8A', fontSize: 11 }}
+                    axisLine={{ stroke: axisColor }}
+                    tick={{ fill: tickColor, fontSize: 11 }}
                   />
                   <YAxis
                     domain={[0, 'dataMax + 25']}
                     tickLine={false}
-                    axisLine={{ stroke: '#DCDCDC' }}
-                    tick={{ fill: '#8A8A8A', fontSize: 11 }}
+                    axisLine={{ stroke: axisColor }}
+                    tick={{ fill: tickColor, fontSize: 11 }}
                     unit=" L"
                   />
                   <Tooltip
@@ -347,12 +357,12 @@ export default function TrendsView() {
                       if (active && payload && payload.length) {
                         const d = payload[0].payload;
                         return (
-                          <div className="bg-[#FAFAFA] p-3 rounded-2xl shadow-lg border border-[#DCDCDC] text-xs">
-                            <div className="font-bold text-[#1A1A1A] mb-1">{d.fullDate}</div>
-                            <div className="text-[#1A1A1A]">Overnight flow: <strong className="font-bold">{d.overnight} L</strong></div>
-                            <div className="text-[#8A8A8A]">Threshold: ~{overnightThreshold} L</div>
+                          <div className="bg-[#FFFFFF] p-3 rounded-xl shadow-lg border border-[#E4E7EC] text-xs">
+                            <div className="font-bold text-[#101828] mb-1">{d.fullDate}</div>
+                            <div className="text-[#101828]">Overnight flow: <strong className="font-bold">{d.overnight} L</strong></div>
+                            <div className="text-[#667085]">Threshold: ~{overnightThreshold} L</div>
                             <div className="mt-1 text-[11px]">
-                              Flow pattern: <strong className={d.flowShape === 'CONTINUOUS' ? 'text-[#B8564A]' : 'text-[#1A1A1A]'}>
+                              Flow pattern: <strong className={d.flowShape === 'CONTINUOUS' ? 'text-[#F04438]' : 'text-[#101828]'}>
                                 {d.flowShape}
                               </strong>
                             </div>
@@ -362,14 +372,14 @@ export default function TrendsView() {
                       return null;
                     }}
                   />
-                  {/* Single Muted Red Accent for Leak Threshold */}
+                  {/* Red Accent for Leak Threshold */}
                   <ReferenceLine
                     y={overnightThreshold}
-                    stroke="#B8564A"
+                    stroke={leakColor}
                     strokeDasharray="4 4"
                     label={{
                       value: `Leak threshold (~${overnightThreshold}L)`,
-                      fill: '#B8564A',
+                      fill: leakColor,
                       fontSize: 10,
                       position: 'insideTopRight'
                     }}
@@ -378,7 +388,7 @@ export default function TrendsView() {
                     type="monotone"
                     dataKey="overnight"
                     name="Overnight flow (L)"
-                    stroke="#1A1A1A"
+                    stroke={overnightStroke}
                     strokeWidth={2}
                     dot={(props: any) => {
                       const { cx, cy, payload } = props;
@@ -390,8 +400,8 @@ export default function TrendsView() {
                           cx={cx}
                           cy={cy}
                           r={isHigh ? 4.5 : 2.5}
-                          fill={isHigh ? '#B8564A' : '#1A1A1A'}
-                          stroke="#ffffff"
+                          fill={isHigh ? leakColor : overnightStroke}
+                          stroke={isDark ? '#1E2128' : '#FFFFFF'}
                           strokeWidth={1}
                         />
                       );
@@ -402,8 +412,8 @@ export default function TrendsView() {
             </div>
           </div>
 
-          <div className="pt-3 border-t border-[#DCDCDC] text-[11px] text-[#8A8A8A] flex flex-wrap items-center justify-between gap-2">
-            <span>Dotted red line: threshold (#B8564A)</span>
+          <div className="pt-3 border-t border-[#E4E7EC] text-[11px] text-[#667085] flex flex-wrap items-center justify-between gap-2">
+            <span>Dotted red line: threshold (#F04438)</span>
             <span>Normal baseline: 5–15 L/night</span>
           </div>
         </div>

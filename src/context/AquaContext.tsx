@@ -31,11 +31,14 @@ interface AquaContextType {
   logout: () => void;
   dashboardView: 'overview' | 'trends' | 'history';
   setDashboardView: (view: 'overview' | 'trends' | 'history') => void;
+  theme: 'light' | 'dark';
+  toggleTheme: () => void;
 }
 
-const STORAGE_KEY_HOUSEHOLDS = 'aquawatch_v5_gold_households';
-const STORAGE_KEY_READINGS = 'aquawatch_v5_gold_readings';
-const STORAGE_KEY_AUTH = 'aquawatch_v5_gold_auth';
+const STORAGE_KEY_HOUSEHOLDS = 'aquawatch_v6_enhanced_households';
+const STORAGE_KEY_READINGS = 'aquawatch_v6_enhanced_readings';
+const STORAGE_KEY_AUTH = 'aquawatch_v6_enhanced_auth';
+const STORAGE_KEY_THEME = 'aquawatch_theme';
 
 const AquaContext = createContext<AquaContextType | undefined>(undefined);
 
@@ -47,8 +50,24 @@ export function AquaProvider({ children }: { children: React.ReactNode }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [dashboardView, setDashboardView] = useState<'overview' | 'trends' | 'history'>('overview');
+  const [theme, setThemeState] = useState<'light' | 'dark'>('light');
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(prev => !prev);
+
+  const toggleTheme = () => {
+    setThemeState(prev => {
+      const next = prev === 'light' ? 'dark' : 'light';
+      try {
+        localStorage.setItem(STORAGE_KEY_THEME, next);
+      } catch {}
+      if (next === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      return next;
+    });
+  };
 
   const login = (demo?: boolean) => {
     setIsLoggedIn(true);
@@ -74,6 +93,16 @@ export function AquaProvider({ children }: { children: React.ReactNode }) {
       const savedAuth = localStorage.getItem(STORAGE_KEY_AUTH);
       if (savedAuth === 'true') {
         setIsLoggedIn(true);
+      }
+
+      const savedTheme = localStorage.getItem(STORAGE_KEY_THEME) as 'light' | 'dark' | null;
+      if (savedTheme === 'dark' || savedTheme === 'light') {
+        setThemeState(savedTheme);
+        if (savedTheme === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
       }
 
       const savedHouseholds = localStorage.getItem(STORAGE_KEY_HOUSEHOLDS);
@@ -153,10 +182,45 @@ export function AquaProvider({ children }: { children: React.ReactNode }) {
             confidencePercent: analysis.status.peerDivergence.confidencePercent,
             isPeerFlat: analysis.status.peerDivergence.isPeerFlat,
             reason: analysis.status.explanation,
-            canResetBaseline: true
+            canResetBaseline: true,
+
+            // Expanded detection scenarios (A - E)
+            alertCategory: analysis.status.alertCategory || 'ACUTE_LEAK',
+            severityTier: analysis.status.severityTier,
+            estimatedRateLph: analysis.status.estimatedRateLph,
+            estimatedCostSoFar: analysis.status.estimatedCostSoFar,
+            estimatedCostPerMonth: analysis.status.estimatedCostPerMonth,
+            waterRatePer1000L: analysis.status.waterRatePer1000L,
+            slowCreepDriftPercent: analysis.status.slowCreepDriftPercent,
+            stalledConsecutiveDays: analysis.status.stalledConsecutiveDays
           });
         }
       }
+    });
+
+    // Prioritize order: Severe leaks first, then moderate, minor, slow-creep, high-usage, meter stall
+    alerts.sort((a, b) => {
+      const catPriority = (cat: string) => {
+        if (cat === 'ACUTE_LEAK' || cat === 'VACATION_LEAK') return 1;
+        if (cat === 'SLOW_CREEP') return 2;
+        if (cat === 'HIGH_USAGE') return 3;
+        if (cat === 'METER_STALL') return 4;
+        return 5;
+      };
+      const tierPriority = (tier?: string) => {
+        if (tier === 'SEVERE') return 1;
+        if (tier === 'MODERATE') return 2;
+        if (tier === 'MINOR') return 3;
+        return 4;
+      };
+
+      const cDiff = catPriority(a.alertCategory) - catPriority(b.alertCategory);
+      if (cDiff !== 0) return cDiff;
+
+      const tDiff = tierPriority(a.severityTier) - tierPriority(b.severityTier);
+      if (tDiff !== 0) return tDiff;
+
+      return (b.excessLitersPerDay || 0) - (a.excessLitersPerDay || 0);
     });
 
     return alerts;
@@ -377,7 +441,9 @@ export function AquaProvider({ children }: { children: React.ReactNode }) {
         login,
         logout,
         dashboardView,
-        setDashboardView
+        setDashboardView,
+        theme,
+        toggleTheme
       }}
     >
       {children}

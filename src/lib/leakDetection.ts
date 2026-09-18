@@ -1,4 +1,4 @@
-import type { MeterReading, DayAnalysis, LeakStatus, Household, PeerDivergenceInfo } from '../types/index.ts';
+import type { MeterReading, DayAnalysis, LeakStatus, Household, PeerDivergenceInfo, AlertCategory, LeakSeverityTier } from '../types/index.ts';
 
 export function calculateStdDev(values: number[], mean: number): number {
   if (values.length <= 1) return 0;
@@ -339,7 +339,64 @@ export function analyzeReadings(
     ? "unusual overnight activity — may be a guest or late-night use"
     : undefined;
 
+  // ──────────────────────────────────────────────────────────────────────────
+  // Scenario A: Vacation Mode
+  // If household declared vacation mode and latest reading has meaningful consumption (>10 L),
+  // immediately flag HIGH-CONFIDENCE leak, bypassing the 2-night persistence rule.
+  // ──────────────────────────────────────────────────────────────────────────
+  const isVacationDeclared = Boolean(
+    safeHousehold.isVacationMode ||
+    (safeHousehold.vacationStartDate && safeHousehold.vacationEndDate &&
+      latest.date >= safeHousehold.vacationStartDate && latest.date <= safeHousehold.vacationEndDate)
+  );
+  const isVacationLeak = isVacationDeclared && latest.liters >= 10;
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // Scenario B: Slow-Creep Leak Detection
+  // Compare current 14-day overnight baseline against 14-day overnight baseline ~45 days ago
+  // ──────────────────────────────────────────────────────────────────────────
+  let isSlowCreep = false;
+  let slowCreepDriftPercent = 0;
+  let baseline45Overnight = 0;
+
+  if (sorted.length >= 45) {
+    const pastWindowEnd = Math.max(14, sorted.length - 45);
+    const pastWindowStart = Math.max(0, pastWindowEnd - 14);
+    const pastReadings = sorted.slice(pastWindowStart, pastWindowEnd);
+    if (pastReadings.length >= 7) {
+      baseline45Overnight = pastReadings.reduce((sum, r) => sum + r.overnightLiters, 0) / pastReadings.length;
+      const currentOvernightAvg = latest.rolling_overnight_avg;
+      if (baseline45Overnight > 0 && currentOvernightAvg >= baseline45Overnight + 4) {
+        slowCreepDriftPercent = Math.round(((currentOvernightAvg - baseline45Overnight) / baseline45Overnight) * 100);
+        if (slowCreepDriftPercent >= 25) {
+          isSlowCreep = true;
+        }
+      }
+    }
+  }
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // Scenario E: Meter Stall / Zero-Flow Detection
+  // Active residence with no vacation declared, normally using water, suddenly shows <5 L/day for 2+ days
+  // ──────────────────────────────────────────────────────────────────────────
+  let isMeterStall = false;
+  let stalledConsecutiveDays = 0;
+  if (!isVacationDeclared && sorted.length >= 3 && latest.rolling_avg > 40) {
+    for (let k = sorted.length - 1; k >= 0; k--) {
+      if (sorted[k].liters < 5) {
+        stalledConsecutiveDays++;
+      } else {
+        break;
+      }
+    }
+    if (stalledConsecutiveDays >= 2) {
+      isMeterStall = true;
+    }
+  }
+
+  // Determine Severity and Category
   let severity: 'NORMAL' | 'HIGH_USAGE' | 'LEAK_DETECTED' = 'NORMAL';
+  let alertCategory: AlertCategory = 'ACUTE_LEAK';
   let title = "Everything's normal";
   let explanation = 'Water consumption is within standard baseline limits.';
   let consecutiveDays = 0;
@@ -348,20 +405,83 @@ export function analyzeReadings(
   // Excess liters is strictly calculated as (current reading − rolling average)
   const excess = Math.max(0, Math.round(latest.liters - latest.rolling_avg));
 
-  if (hasLeak) {
+  if (isVacationLeak) {
     severity = 'LEAK_DETECTED';
+    alertCategory = 'VACATION_LEAK';
+    consecutiveDays = 1;
+    anomalyStartDate = latest.date;
+    title = "Unexpected usage while away — possible leak or burst pipe";
+    explanation = `Household is declared away in Vacation Mode, but ${latest.liters} L of consumption was recorded on ${latest.date} (${latest.daytimeLiters} L daytime, ${latest.overnightLiters} L overnight). Immediate high-confidence alert (2-night persistence bypassed).`;
+  } else if (hasLeak) {
+    severity = 'LEAK_DETECTED';
+    alertCategory = 'ACUTE_LEAK';
     consecutiveDays = overnightStreak;
     anomalyStartDate = overnightStreakStartDate;
     title = "Possible leak — water is running when no one's using it";
     const declaredNote = declaredOvernight > 0 ? ` (after ${declaredOvernight} L scheduled appliance allowance)` : '';
     explanation = `Overnight flow has stayed elevated across continuous hourly buckets (${latest.effectiveOvernightLiters ?? latest.overnightLiters} L effective vs normal ~${Math.round(latest.rolling_overnight_avg)} L)${declaredNote} for ${overnightStreak} consecutive nights.`;
+  } else if (isSlowCreep) {
+    severity = 'HIGH_USAGE';
+    alertCategory = 'SLOW_CREEP';
+    consecutiveDays = 14;
+    anomalyStartDate = sorted[Math.max(0, sorted.length - 14)].date;
+    title = "Gradual increase detected — your baseline usage has risen over the last month";
+    explanation = `Your 14-day overnight baseline has drifted up by +${slowCreepDriftPercent}% over the last 45 days (from ~${Math.round(baseline45Overnight)} L/night to ~${Math.round(latest.rolling_overnight_avg)} L/night) with no declared lifestyle change. Likely a slow fixture creep or degrading seal.`;
   } else if (hasHighUsage) {
     severity = 'HIGH_USAGE';
+    alertCategory = 'HIGH_USAGE';
     consecutiveDays = daytimeStreak || generalStreak;
     anomalyStartDate = daytimeStreakStartDate;
     title = 'Usage is higher than usual';
     explanation = `Daily usage is elevated above your 14-day average for ${consecutiveDays} consecutive days, but overnight flow remains within baseline. Likely domestic activity, not a plumbing fault.`;
+  } else if (isMeterStall) {
+    severity = 'HIGH_USAGE';
+    alertCategory = 'METER_STALL';
+    consecutiveDays = stalledConsecutiveDays;
+    anomalyStartDate = sorted[sorted.length - stalledConsecutiveDays].date;
+    title = "No usage detected — check your meter or contact us";
+    explanation = `Zero or near-zero water flow (<5 L/day) recorded for ${stalledConsecutiveDays} consecutive days on an active residence with no vacation declared. Check for a stuck meter valve, telemetry gateway disconnection, or unannounced absence.`;
   }
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // Scenario C: Severity Tiers
+  // ──────────────────────────────────────────────────────────────────────────
+  let estimatedRateLph = 0;
+  let severityTier: LeakSeverityTier | undefined = undefined;
+
+  if (severity === 'LEAK_DETECTED') {
+    if (alertCategory === 'VACATION_LEAK') {
+      estimatedRateLph = Math.round((latest.liters / 24) * 10) / 10;
+    } else {
+      const excessOvernight = Math.max(0, latest.overnightLiters - declaredOvernight - latest.rolling_overnight_avg);
+      estimatedRateLph = Math.round((excessOvernight / 7) * 10) / 10;
+    }
+
+    if (estimatedRateLph >= 20) {
+      severityTier = 'SEVERE';
+    } else if (estimatedRateLph >= 5) {
+      severityTier = 'MODERATE';
+    } else {
+      severityTier = 'MINOR';
+    }
+  } else if (isSlowCreep) {
+    const creepExcess = Math.max(0, latest.rolling_overnight_avg - baseline45Overnight);
+    estimatedRateLph = Math.round((creepExcess / 7) * 10) / 10;
+    severityTier = estimatedRateLph >= 5 ? 'MODERATE' : 'MINOR';
+  }
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // Scenario D: Cost / Impact Estimate
+  // ──────────────────────────────────────────────────────────────────────────
+  const waterRate = safeHousehold.waterRatePer1000L || 50; // ₹50 per 1,000L
+  const dailyImpactLiters = severity === 'LEAK_DETECTED'
+    ? (alertCategory === 'VACATION_LEAK' ? latest.liters : Math.max(excess, Math.round(estimatedRateLph * 24)))
+    : isSlowCreep
+    ? Math.max(5, Math.round(latest.rolling_overnight_avg - baseline45Overnight))
+    : excess;
+
+  const estimatedCostSoFar = Math.round((dailyImpactLiters * Math.max(1, consecutiveDays) * waterRate) / 1000);
+  const estimatedCostPerMonth = Math.round((dailyImpactLiters * 30 * waterRate) / 1000);
 
   const peerDiffPercent = latest.peer_avg > 0
     ? Math.round(((latest.liters - latest.peer_avg) / latest.peer_avg) * 100)
@@ -389,7 +509,17 @@ export function analyzeReadings(
 
   let peerDivergence: PeerDivergenceInfo;
 
-  if (severity !== 'NORMAL' || hhDiffPercent > 15) {
+  if (alertCategory === 'VACATION_LEAK') {
+    peerDivergence = {
+      confidence: 'HIGH',
+      confidencePercent: 99,
+      label: 'Optimal (99%)',
+      description: 'Unexpected consumption while declared away in Vacation Mode. Immediate isolated event.',
+      isPeerFlat: true,
+      householdDiffPercent: 100,
+      peerTrendPercent: 0
+    };
+  } else if (severity !== 'NORMAL' || hhDiffPercent > 15) {
     if (peerTrendPercent <= 5) {
       peerDivergence = {
         confidence: 'HIGH',
@@ -441,7 +571,18 @@ export function analyzeReadings(
       peerAvgLiters: latest.peer_avg,
       peerDivergence,
       title,
-      explanation
+      explanation,
+      
+      // Expanded detection fields (Scenarios A - E)
+      alertCategory,
+      severityTier,
+      estimatedRateLph,
+      estimatedCostSoFar,
+      estimatedCostPerMonth,
+      waterRatePer1000L: waterRate,
+      isVacationActive: isVacationDeclared,
+      slowCreepDriftPercent: isSlowCreep ? slowCreepDriftPercent : undefined,
+      stalledConsecutiveDays: isMeterStall ? stalledConsecutiveDays : undefined
     }
   };
 }

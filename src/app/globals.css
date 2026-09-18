@@ -6,13 +6,263 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --bg-page: #F5F7FA;
+    --bg-card: #FFFFFF;
+    --bg-sidebar: #FFFFFF;
+    --text-primary: #101828;
+    --text-secondary: #667085;
+    --border-color: #E4E7EC;
+    --accent-blue: #2F6FED;
+    --accent-blue-hover: #2458C7;
+    --accent-blue-pill: #EFF4FF;
+    
+    --status-normal: #12B76A;
+    --status-normal-pill: #ECFDF3;
+    --status-high: #F79009;
+    --status-high-pill: #FFFAEB;
+    --status-leak: #F04438;
+    --status-leak-pill: #FEF3F2;
+  }
+
+  html.dark, [data-theme="dark"] {
+    --bg-page: #14161B;
+    --bg-card: #1E2128;
+    --bg-sidebar: #1A1C22;
+    --text-primary: #F0F1F3;
+    --text-secondary: #9AA0AC;
+    --border-color: #2A2D35;
+    --accent-blue: #5B8DEF;
+    --accent-blue-hover: #4578E0;
+    --accent-blue-pill: rgba(91, 141, 239, 0.15);
+    
+    --status-normal: #32D583;
+    --status-normal-pill: rgba(50, 213, 131, 0.15);
+    --status-high: #FDB022;
+    --status-high-pill: rgba(253, 176, 34, 0.15);
+    --status-leak: #F97066;
+    --status-leak-pill: rgba(249, 112, 102, 0.15);
+  }
+
   html, body {
     margin: 0;
     padding: 0;
-    background-color: #EDEDED;
-    color: #1A1A1A;
+    background-color: var(--bg-page);
+    color: var(--text-primary);
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
+
+  /* Smooth app-wide theme transition */
+  html, body, aside, header, main, div, button, table, tr, th, td, nav, input, select {
+    transition: background-color 300ms ease, color 300ms ease, border-color 300ms ease, box-shadow 300ms ease;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   APP-WIDE DARK MODE THEME MAPPINGS
+   ═══════════════════════════════════════════════════════════════════════════ */
+html.dark {
+  background-color: #14161B !important;
+  color: #F0F1F3 !important;
+}
+
+html.dark body {
+  background-color: #14161B !important;
+  color: #F0F1F3 !important;
+}
+
+/* Page and Section Backgrounds */
+html.dark .bg-\[\#F5F7FA\],
+html.dark .bg-background {
+  background-color: #14161B !important;
+}
+
+/* Card and Surface Backgrounds */
+html.dark .bg-\[\#FFFFFF\],
+html.dark .bg-white {
+  background-color: #1E2128 !important;
+}
+
+/* Secondary Surface / Hover / Strip Backgrounds */
+html.dark .bg-\[\#F8F9FB\],
+html.dark .bg-\[\#F2F4F7\] {
+  background-color: #242832 !important;
+}
+
+/* Borders and Dividers */
+html.dark .border-\[\#E4E7EC\],
+html.dark .border-\[\#D0D5DD\],
+html.dark .border-outline {
+  border-color: #2A2D35 !important;
+}
+
+/* Typography */
+html.dark .text-\[\#101828\] {
+  color: #F0F1F3 !important;
+}
+
+html.dark .text-\[\#667085\],
+html.dark .text-\[\#475467\],
+html.dark .text-\[\#344054\] {
+  color: #9AA0AC !important;
+}
+
+/* Primary Accent Blue (#5B8DEF in dark mode) */
+html.dark .text-\[\#2F6FED\] {
+  color: #5B8DEF !important;
+}
+
+html.dark .bg-\[\#2F6FED\] {
+  background-color: #5B8DEF !important;
+}
+
+html.dark .border-\[\#2F6FED\] {
+  border-color: #5B8DEF !important;
+}
+
+html.dark .bg-\[\#EFF4FF\] {
+  background-color: rgba(91, 141, 239, 0.15) !important;
+}
+
+/* Status Normal: #32D583 (Green) */
+html.dark .text-\[\#12B76A\],
+html.dark .text-\[\#027A48\] {
+  color: #32D583 !important;
+}
+
+html.dark .bg-\[\#12B76A\] {
+  background-color: #32D583 !important;
+}
+
+html.dark .bg-\[\#ECFDF3\] {
+  background-color: rgba(50, 213, 131, 0.15) !important;
+}
+
+html.dark .border-\[\#12B76A\],
+html.dark .border-\[\#12B76A\]\/20,
+html.dark .border-\[\#12B76A\]\/30,
+html.dark .border-\[\#12B76A\]\/40 {
+  border-color: rgba(50, 213, 131, 0.35) !important;
+}
+
+/* Status High Usage: #FDB022 (Amber) */
+html.dark .text-\[\#F79009\],
+html.dark .text-\[\#B54708\] {
+  color: #FDB022 !important;
+}
+
+html.dark .bg-\[\#F79009\] {
+  background-color: #FDB022 !important;
+}
+
+html.dark .bg-\[\#FFFAEB\],
+html.dark .bg-\[\#FFFAEB\]\/50 {
+  background-color: rgba(253, 176, 34, 0.15) !important;
+}
+
+html.dark .border-\[\#F79009\],
+html.dark .border-\[\#F79009\]\/20,
+html.dark .border-\[\#F79009\]\/30,
+html.dark .border-\[\#F79009\]\/40 {
+  border-color: rgba(253, 176, 34, 0.35) !important;
+}
+
+/* Status Leak / Rupture: #F97066 (Red) */
+html.dark .text-\[\#F04438\],
+html.dark .text-\[\#D92D20\],
+html.dark .text-\[\#B42318\] {
+  color: #F97066 !important;
+}
+
+html.dark .bg-\[\#F04438\] {
+  background-color: #F97066 !important;
+}
+
+html.dark .bg-\[\#FEF3F2\],
+html.dark .bg-\[\#FEF3F2\]\/40 {
+  background-color: rgba(249, 112, 102, 0.15) !important;
+}
+
+html.dark .border-\[\#F04438\],
+html.dark .border-\[\#F04438\]\/20,
+html.dark .border-\[\#F04438\]\/30,
+html.dark .border-\[\#F04438\]\/40 {
+  border-color: rgba(249, 112, 102, 0.35) !important;
+}
+
+/* Vacation alert violet badge in dark mode */
+html.dark .bg-\[\#F4F3FF\],
+html.dark .bg-\[\#ECE9FE\] {
+  background-color: rgba(122, 90, 248, 0.15) !important;
+}
+
+html.dark .text-\[\#7A5AF8\] {
+  color: #9B8AFB !important;
+}
+
+/* Slow-creep cyan badge in dark mode */
+html.dark .bg-\[\#F0F9FF\],
+html.dark .bg-\[\#E0F2FE\] {
+  background-color: rgba(11, 165, 236, 0.15) !important;
+}
+
+html.dark .text-\[\#0BA5EC\],
+html.dark .text-\[\#026AA2\] {
+  color: #38BDF8 !important;
+}
+
+/* Sidebar in Dark Mode (#1A1C22) */
+html.dark aside {
+  background-color: #1A1C22 !important;
+  border-color: #2A2D35 !important;
+}
+
+/* Header in Dark Mode */
+html.dark header {
+  background-color: rgba(26, 28, 34, 0.95) !important;
+  border-color: #2A2D35 !important;
+}
+
+/* Select & Input Controls */
+html.dark select,
+html.dark input {
+  background-color: #242832 !important;
+  color: #F0F1F3 !important;
+  border-color: #2A2D35 !important;
+}
+
+html.dark select option {
+  background-color: #1E2128 !important;
+  color: #F0F1F3 !important;
+}
+
+/* Modals & Dropdown Overlays */
+html.dark [role="dialog"],
+html.dark [role="menu"] {
+  background-color: #1E2128 !important;
+  border-color: #2A2D35 !important;
+  color: #F0F1F3 !important;
+}
+
+/* Hover highlights in dark mode */
+html.dark .hover\:bg-\[\#F2F4F7\]:hover,
+html.dark .hover\:bg-\[\#F8F9FB\]:hover {
+  background-color: #262B37 !important;
+}
+
+html.dark .hover\:bg-\[\#EFF4FF\]:hover {
+  background-color: rgba(91, 141, 239, 0.2) !important;
+}
+
+/* Scrollbars in Dark Mode */
+html.dark ::-webkit-scrollbar-track {
+  background: #14161B;
+}
+html.dark ::-webkit-scrollbar-thumb {
+  background: #2A2D35;
+}
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #3E434F;
 }
 
 /* Keyframes for pipe fluid simulation and drip */
@@ -87,16 +337,18 @@
   line-height: 1;
 }
 
-/* Scrollbar styling - pure monochrome */
+/* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #EDEDED;
+  background: #F5F7FA;
 }
 ::-webkit-scrollbar-thumb {
-  background: #B0B0B0;
+  background: #D0D5DD;
   border-radius: 9999px;
 }
-
+::-webkit-scrollbar-thumb:hover {
+  background: #98A2B3;
+}

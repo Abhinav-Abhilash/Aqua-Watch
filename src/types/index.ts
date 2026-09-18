@@ -8,6 +8,12 @@ export interface Household {
   baselineResetNote?: string;       // e.g. "baseline reset by user on [date]"
   notes?: string;
   created_at?: string;
+  // Scenario A: Vacation Mode
+  isVacationMode?: boolean;
+  vacationStartDate?: string;
+  vacationEndDate?: string;
+  // Scenario D: Cost settings
+  waterRatePer1000L?: number; // e.g. 50 (₹ or $ per 1,000L)
 }
 
 export interface MeterReading {
@@ -55,6 +61,9 @@ export interface PeerDivergenceInfo {
   peerTrendPercent: number;
 }
 
+export type LeakSeverityTier = 'MINOR' | 'MODERATE' | 'SEVERE';
+export type AlertCategory = 'ACUTE_LEAK' | 'VACATION_LEAK' | 'SLOW_CREEP' | 'HIGH_USAGE' | 'METER_STALL';
+
 export interface LeakStatus {
   hasLeak: boolean;
   hasHighUsage: boolean;
@@ -80,6 +89,17 @@ export interface LeakStatus {
   peerDivergence: PeerDivergenceInfo;
   title: string;
   explanation: string;
+  
+  // Expanded detection scenarios (A - E)
+  alertCategory?: AlertCategory;
+  severityTier?: LeakSeverityTier;
+  estimatedRateLph?: number;          // Excess liters / hr
+  estimatedCostSoFar?: number;        // ₹ or $
+  estimatedCostPerMonth?: number;     // ₹ or $ per month
+  waterRatePer1000L?: number;         // Rate used
+  isVacationActive?: boolean;
+  slowCreepDriftPercent?: number;
+  stalledConsecutiveDays?: number;
 }
 
 export interface ActiveAlert {
@@ -99,4 +119,14 @@ export interface ActiveAlert {
   isPeerFlat: boolean;
   reason: string;
   canResetBaseline?: boolean;
+
+  // Expanded fields
+  alertCategory: AlertCategory;
+  severityTier?: LeakSeverityTier;
+  estimatedRateLph?: number;
+  estimatedCostSoFar?: number;
+  estimatedCostPerMonth?: number;
+  waterRatePer1000L?: number;
+  slowCreepDriftPercent?: number;
+  stalledConsecutiveDays?: number;
 }
