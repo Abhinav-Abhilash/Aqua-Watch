@@ -1,10 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useAqua } from '@/context/AquaContext';
 import ThemeToggleSwitch from '@/components/ThemeToggleSwitch';
 
 export default function LoginPage() {
+  const router = useRouter();
   const { login } = useAqua();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -12,10 +15,12 @@ export default function LoginPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     login(false);
+    router.push('/');
   };
 
   const handleDemoLogin = () => {
     login(true);
+    router.push('/');
   };
 
   return (
@@ -26,7 +31,7 @@ export default function LoginPage() {
         
         {/* Brand Header & Theme Switch */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
+          <Link href="/" className="flex items-center gap-2.5 group cursor-pointer">
             <div className="w-8 h-8 shrink-0">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" className="w-full h-full">
                 <path d="M16 3C16 3 7 14.5 7 21C7 25.9706 11.0294 30 16 30C20.9706 30 25 25.9706 25 21C25 14.5 16 3 16 3Z" fill="#2F6FED"/>
@@ -34,8 +39,8 @@ export default function LoginPage() {
                 <circle cx="13" cy="22" r="2.5" fill="#FFFFFF" opacity="0.9"/>
               </svg>
             </div>
-            <span className="font-bold text-lg text-[#101828] tracking-tight">AquaWatch</span>
-          </div>
+            <span className="font-bold text-lg text-[#101828] tracking-tight group-hover:text-[#2F6FED] transition-colors">AquaWatch</span>
+          </Link>
           <ThemeToggleSwitch id="login-theme-toggle-switch" />
         </div>
 

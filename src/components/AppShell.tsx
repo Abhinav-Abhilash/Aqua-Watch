@@ -1,13 +1,23 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAqua } from '@/context/AquaContext';
 import Sidebar from '@/components/Sidebar';
 import AppFooter from '@/components/AppFooter';
 import LoginPage from '@/components/LoginPage';
+import LandingPage from '@/components/LandingPage';
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const { isLoggedIn, isLoaded } = useAqua();
+  const pathname = usePathname();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isLoaded && isLoggedIn && pathname === '/login') {
+      router.push('/');
+    }
+  }, [isLoaded, isLoggedIn, pathname, router]);
 
   if (!isLoaded) {
     return (
@@ -19,14 +29,19 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   if (!isLoggedIn) {
-    return (
-      <div className="min-h-screen flex flex-col justify-between bg-background">
-        <div className="flex-1 flex flex-col">
-          <LoginPage />
+    if (pathname === '/login') {
+      return (
+        <div className="min-h-screen flex flex-col justify-between bg-background">
+          <div className="flex-1 flex flex-col">
+            <LoginPage />
+          </div>
+          <AppFooter />
         </div>
-        <AppFooter />
-      </div>
-    );
+      );
+    }
+
+    // Default standalone pre-login route is the landing page
+    return <LandingPage />;
   }
 
   return (
@@ -41,3 +56,4 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
+

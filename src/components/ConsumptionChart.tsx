@@ -155,8 +155,8 @@ export default function ConsumptionChart({ timeline: propTimeline, household: pr
           <button
             onClick={() => setTimeRange('14d')}
             className={`px-3 py-1 text-xs font-medium rounded-full transition-all cursor-pointer ${timeRange === '14d'
-                ? 'bg-[#EFF4FF] text-[#2F6FED] font-semibold border border-[#2F6FED]/20'
-                : 'text-[#667085] hover:text-[#101828]'
+              ? 'bg-[#EFF4FF] text-[#2F6FED] font-semibold border border-[#2F6FED]/20'
+              : 'text-[#667085] hover:text-[#101828]'
               }`}
           >
             14 Days
@@ -164,8 +164,8 @@ export default function ConsumptionChart({ timeline: propTimeline, household: pr
           <button
             onClick={() => setTimeRange('30d')}
             className={`px-3 py-1 text-xs font-medium rounded-full transition-all cursor-pointer ${timeRange === '30d'
-                ? 'bg-[#EFF4FF] text-[#2F6FED] font-semibold border border-[#2F6FED]/20'
-                : 'text-[#667085] hover:text-[#101828]'
+              ? 'bg-[#EFF4FF] text-[#2F6FED] font-semibold border border-[#2F6FED]/20'
+              : 'text-[#667085] hover:text-[#101828]'
               }`}
           >
             30 Days
@@ -173,8 +173,8 @@ export default function ConsumptionChart({ timeline: propTimeline, household: pr
           <button
             onClick={() => setTimeRange('60d')}
             className={`px-3 py-1 text-xs font-medium rounded-full transition-all cursor-pointer ${timeRange === '60d'
-                ? 'bg-[#EFF4FF] text-[#2F6FED] font-semibold border border-[#2F6FED]/20'
-                : 'text-[#667085] hover:text-[#101828]'
+              ? 'bg-[#EFF4FF] text-[#2F6FED] font-semibold border border-[#2F6FED]/20'
+              : 'text-[#667085] hover:text-[#101828]'
               }`}
           >
             60 Days
